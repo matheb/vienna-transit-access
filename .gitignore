@@ -1,0 +1,28 @@
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Pipeline data (raw GTFS is large; download it from data.gv.at)
+pipeline/gtfs/
+pipeline/*.zip
+
+# Node / Next.js
+node_modules/
+web/.next/
+web/out/
+web/next-env.d.ts
+*.tsbuildinfo
+.env*.local
+.vercel/
+
+# Claude Code local settings
+.claude/settings.local.json
