@@ -1,7 +1,11 @@
 "use client";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { Feature, FeatureCollection, MultiPolygon, Polygon } from "geojson";
+import { setWorkerUrl } from "maplibre-gl";
 import Map, { Layer, Source } from "react-map-gl/maplibre";
+
+// Worker is copied to public/ by scripts/copy-maplibre-worker.mjs; set before any map is created.
+setWorkerUrl("/maplibre/maplibre-gl-worker.mjs");
 
 // Carto basemap: free, requires attribution (rendered by MapLibre automatically).
 const STYLE = "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
