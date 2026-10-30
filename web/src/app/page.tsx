@@ -27,20 +27,20 @@ export default function Home() {
         <Card>
           <CardHeader><CardTitle>Parameters</CardTitle></CardHeader>
           <CardContent className="space-y-5">
-            <ToggleGroup type="single" value={p.day} onValueChange={(v) => v && set("day", v as DayType)}>
+            <ToggleGroup value={[p.day]} onValueChange={(v) => v[0] && set("day", v[0] as DayType)}>
               {["weekday", "saturday", "sunday"].map((d) => <ToggleGroupItem key={d} value={d}>{d}</ToggleGroupItem>)}
             </ToggleGroup>
-            <ToggleGroup type="single" value={p.band} onValueChange={(v) => v && set("band", v as Band)}>
+            <ToggleGroup value={[p.band]} onValueChange={(v) => v[0] && set("band", v[0] as Band)}>
               {["am", "midday", "pm", "evening"].map((b) => <ToggleGroupItem key={b} value={b}>{b}</ToggleGroupItem>)}
             </ToggleGroup>
-            <ToggleGroup type="multiple" value={p.modes} onValueChange={(v) => set("modes", v as Mode[])}>
+            <ToggleGroup multiple value={p.modes} onValueChange={(v) => set("modes", v as Mode[])}>
               {["tram", "metro", "rail", "bus"].map((m) => <ToggleGroupItem key={m} value={m}>{m}</ToggleGroupItem>)}
             </ToggleGroup>
             <label className="block text-sm">Min. departures/hour: {p.minDph}
-              <Slider min={0} max={20} step={1} value={[p.minDph]} onValueChange={([v]) => set("minDph", v)} />
+              <Slider min={0} max={20} step={1} value={[p.minDph]} onValueChange={(v) => set("minDph", typeof v === "number" ? v : v[0])} />
             </label>
             <label className="block text-sm">Walking radius: {p.radius} m
-              <Slider min={100} max={800} step={50} value={[p.radius]} onValueChange={([v]) => set("radius", v)} />
+              <Slider min={100} max={800} step={50} value={[p.radius]} onValueChange={(v) => set("radius", typeof v === "number" ? v : v[0])} />
             </label>
           </CardContent>
         </Card>
