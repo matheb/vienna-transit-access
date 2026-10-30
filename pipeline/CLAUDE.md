@@ -1,3 +1,3 @@
-Python, pandas. Entry: compute_stops.py <gtfs_dir> <out.geojson> <YYYY-MM-DD>.
-Test: `python -m pytest` (run from pipeline/). Add/adjust tests with every logic change.
-Semantics: one representative date per day type; deps/hour = deps in band / band length; terminals excluded; grouped by parent_station.
+Python, pandas, venv in pipeline/.venv. Entry: compute_stops.py <gtfs_dir> <out.geojson> --weekday D --saturday D --sunday D [--bbox ...|none] [--chunksize N]; prints station count + weekday-am >= 4/h count.
+Test: `.venv\Scripts\python -m pytest` (run from pipeline/). Add/adjust tests with every logic change.
+Semantics: one representative date per day type; deps/hour = deps in band / band length; terminals and pickup_type=1 excluded; grouped by parent_station, else "at:X:Y" id prefix; a station's departures are summed over all its platforms and both directions; default bbox ≈ Vienna rectangle (includes some adjacent suburbs). stop_times read in chunks, active trips only.
