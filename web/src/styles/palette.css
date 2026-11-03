@@ -26,4 +26,8 @@
   --palette-red-600: oklch(0.577 0.245 27.325);
   --palette-red-400: oklch(0.704 0.191 22.216);
   --palette-indigo-600: oklch(0.488 0.243 264.376);
+
+  /* Map (mirrored in src/styles/mapColors.ts — MapLibre can't read CSS variables) */
+  --palette-blue-600: #2563eb;
+  --palette-blue-900: #1e3a8a;
 }

@@ -3,6 +3,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import type { Feature, FeatureCollection, MultiPolygon, Polygon } from "geojson";
 import { setWorkerUrl } from "maplibre-gl";
 import Map, { Layer, Source } from "react-map-gl/maplibre";
+import { MAP_COLORS } from "@/styles/mapColors";
 
 // Worker is copied to public/ by scripts/copy-maplibre-worker.mjs; set before any map is created.
 setWorkerUrl("/maplibre/maplibre-gl-worker.mjs");
@@ -26,15 +27,20 @@ export default function TransitMap({ stops, area }: TransitMapProps) {
     <Map initialViewState={INITIAL_VIEW_STATE} mapStyle={BASEMAP_STYLE_URL} style={MAP_CONTAINER_STYLE}>
       {area && (
         <Source id="coverage" type="geojson" data={area}>
-          <Layer id="coverage-fill" type="fill" paint={{ "fill-color": "#2563eb", "fill-opacity": COVERAGE_FILL_OPACITY }} />
-          <Layer id="coverage-line" type="line" paint={{ "line-color": "#2563eb", "line-width": COVERAGE_LINE_WIDTH }} />
+          <Layer id="coverage-fill" type="fill" paint={{ "fill-color": MAP_COLORS.coverage, "fill-opacity": COVERAGE_FILL_OPACITY }} />
+          <Layer id="coverage-line" type="line" paint={{ "line-color": MAP_COLORS.coverage, "line-width": COVERAGE_LINE_WIDTH }} />
         </Source>
       )}
       <Source id="stops" type="geojson" data={stops}>
         <Layer
           id="stops-circle"
           type="circle"
-          paint={{ "circle-radius": STOP_CIRCLE_RADIUS, "circle-color": "#1e3a8a", "circle-stroke-width": STOP_CIRCLE_STROKE_WIDTH, "circle-stroke-color": "#fff" }}
+          paint={{
+            "circle-radius": STOP_CIRCLE_RADIUS,
+            "circle-color": MAP_COLORS.stop,
+            "circle-stroke-width": STOP_CIRCLE_STROKE_WIDTH,
+            "circle-stroke-color": MAP_COLORS.stopStroke,
+          }}
         />
       </Source>
     </Map>
