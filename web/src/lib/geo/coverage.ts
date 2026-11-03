@@ -1,8 +1,6 @@
-import area from "@turf/area";
-import buffer from "@turf/buffer";
-import { featureCollection } from "@turf/helpers";
-import union from "@turf/union";
-import type { Feature, FeatureCollection, MultiPolygon, Point, Polygon } from "geojson";
+import type { Feature, MultiPolygon, Point, Polygon } from "geojson";
+import { getCoverageGrid, getCoveredAreaKm2 } from "./coverageGrid";
+import { getCoveragePolygon } from "./coveragePolygon";
 
 export const DAY_TYPES = ["weekday", "saturday", "sunday"] as const;
 export type DayType = (typeof DAY_TYPES)[number];
@@ -35,8 +33,8 @@ export interface Coverage {
 }
 
 export const VIENNA_AREA_KM2 = 414.9;
-const BUFFER_STEPS = 8; // polygon segments per quarter circle around each stop
-const SQUARE_METERS_PER_KM2 = 1e6;
+// Chosen with scripts/benchmark-coverage.mjs: about 40–70 ms on the real stops, area within 1 % of the exact union.
+export const COVERAGE_CELL_SIZE_METERS = 25;
 
 export function filterStops(stops: Stop[], params: FilterParams): Stop[] {
   return stops.filter(
@@ -46,11 +44,13 @@ export function filterStops(stops: Stop[], params: FilterParams): Stop[] {
   );
 }
 
-export function getCoverage(stops: Stop[], radiusMeters: number): Coverage {
-  if (stops.length === 0) return { polygon: null, areaKm2: 0, viennaShare: 0 };
-  const buffers = stops.map((stop) => buffer(stop, radiusMeters, { units: "meters", steps: BUFFER_STEPS })!);
-  const merged: Feature<Polygon | MultiPolygon> | null =
-    buffers.length === 1 ? buffers[0] : union(featureCollection(buffers) as FeatureCollection<Polygon | MultiPolygon>);
-  const areaKm2 = merged ? area(merged) / SQUARE_METERS_PER_KM2 : 0;
-  return { polygon: merged, areaKm2, viennaShare: Math.min(areaKm2 / VIENNA_AREA_KM2, 1) };
+/**
+ * Approximate area within radiusMeters of any stop, plus its outline for the map.
+ * Both come from one grid in local metres (see coverageGrid.ts): the area counts covered cells and the
+ * polygon is the traced grid edge. On the real stops the area is within 1 % of an exact circle union.
+ */
+export function getCoverage(stops: Stop[], radiusMeters: number, cellSizeMeters = COVERAGE_CELL_SIZE_METERS): Coverage {
+  const grid = getCoverageGrid(stops, radiusMeters, cellSizeMeters);
+  const areaKm2 = getCoveredAreaKm2(grid);
+  return { polygon: getCoveragePolygon(grid), areaKm2, viennaShare: Math.min(areaKm2 / VIENNA_AREA_KM2, 1) };
 }
