@@ -9,9 +9,12 @@ import {
   type DayType, type FilterParams, type Mode, type Stop, type TimeBand,
 } from "@/lib/geo/coverage";
 import { getSliderValue } from "@/lib/slider";
+import { messages } from "@/i18n/en";
 import { fetchStops } from "@/services/stopsService";
 
 const TransitMap = dynamic(() => import("@/components/TransitMap"), { ssr: false });
+
+const homeMessages = messages.home;
 
 const DEFAULT_FILTER_PARAMS: FilterParams = {
   day: "weekday",
@@ -56,31 +59,36 @@ export default function Home() {
   return (
     <main className="flex h-screen flex-col md:flex-row">
       <aside className="w-full space-y-4 overflow-y-auto p-4 md:w-96">
-        <h1 className="text-xl font-semibold">Vienna transit accessibility</h1>
+        <h1 className="text-xl font-semibold">{homeMessages.title}</h1>
         <Card>
-          <CardHeader><CardTitle>Parameters</CardTitle></CardHeader>
+          <CardHeader><CardTitle>{homeMessages.parametersTitle}</CardTitle></CardHeader>
           <CardContent className="space-y-5">
             <ToggleGroup value={[filterParams.day]} onValueChange={handleDayChange}>
-              {DAY_TYPES.map((day) => <ToggleGroupItem key={day} value={day}>{day}</ToggleGroupItem>)}
+              {DAY_TYPES.map((day) => <ToggleGroupItem key={day} value={day}>{messages.dayTypes[day]}</ToggleGroupItem>)}
             </ToggleGroup>
             <ToggleGroup value={[filterParams.band]} onValueChange={handleTimeBandChange}>
-              {TIME_BANDS.map((band) => <ToggleGroupItem key={band} value={band}>{band}</ToggleGroupItem>)}
+              {TIME_BANDS.map((band) => <ToggleGroupItem key={band} value={band}>{messages.timeBands[band]}</ToggleGroupItem>)}
             </ToggleGroup>
             <ToggleGroup multiple value={filterParams.modes} onValueChange={handleModesChange}>
-              {SELECTABLE_MODES.map((mode) => <ToggleGroupItem key={mode} value={mode}>{mode}</ToggleGroupItem>)}
+              {SELECTABLE_MODES.map((mode) => <ToggleGroupItem key={mode} value={mode}>{messages.modes[mode]}</ToggleGroupItem>)}
             </ToggleGroup>
-            <label className="block text-sm">Min. departures/hour: {filterParams.minDeparturesPerHour}
+            <label className="block text-sm">{homeMessages.minDeparturesLabel} {filterParams.minDeparturesPerHour}
               <Slider {...MIN_DEPARTURES_SLIDER} value={[filterParams.minDeparturesPerHour]} onValueChange={handleMinDeparturesChange} />
             </label>
-            <label className="block text-sm">Walking radius: {filterParams.radiusMeters} m
+            <label className="block text-sm">{homeMessages.radiusLabel} {filterParams.radiusMeters} {homeMessages.radiusUnit}
               <Slider {...RADIUS_SLIDER} value={[filterParams.radiusMeters]} onValueChange={handleRadiusChange} />
             </label>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6 text-sm">
-            <p><b>{qualifyingStops.length}</b> of {allStops.length} stops qualify</p>
-            <p>Covered area: <b>{coverage.areaKm2.toFixed(1)} km²</b> ({(coverage.viennaShare * 100).toFixed(0)}% of Vienna, approx.)</p>
+            <p>
+              <b>{qualifyingStops.length}</b> {homeMessages.stopsSummary.of} {allStops.length} {homeMessages.stopsSummary.suffix}
+            </p>
+            <p>
+              {homeMessages.coveredArea.label} <b>{coverage.areaKm2.toFixed(1)} {homeMessages.coveredArea.unit}</b>{" "}
+              ({(coverage.viennaShare * 100).toFixed(0)}{homeMessages.coveredArea.shareSuffix})
+            </p>
           </CardContent>
         </Card>
       </aside>
