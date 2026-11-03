@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { filterStops, getCoverage, type DayType, type FilterParams, type Mode, type Stop, type TimeBand } from "@/lib/geo/coverage";
+import { getSliderValue } from "@/lib/slider";
 import { fetchStops } from "@/services/stopsService";
 
 const TransitMap = dynamic(() => import("@/components/TransitMap"), { ssr: false });
@@ -22,6 +23,23 @@ export default function Home() {
   const updateFilterParam = <K extends keyof FilterParams>(key: K, value: FilterParams[K]) =>
     setFilterParams((previous) => ({ ...previous, [key]: value }));
 
+  // Single-select toggle groups report [] when the active item is clicked again; keep the current value then.
+  function handleDayChange(value: string[]) {
+    if (value[0]) updateFilterParam("day", value[0] as DayType);
+  }
+  function handleTimeBandChange(value: string[]) {
+    if (value[0]) updateFilterParam("band", value[0] as TimeBand);
+  }
+  function handleModesChange(value: string[]) {
+    updateFilterParam("modes", value as Mode[]);
+  }
+  function handleMinDeparturesChange(value: number | readonly number[]) {
+    updateFilterParam("minDeparturesPerHour", getSliderValue(value));
+  }
+  function handleRadiusChange(value: number | readonly number[]) {
+    updateFilterParam("radiusMeters", getSliderValue(value));
+  }
+
   return (
     <main className="flex h-screen flex-col md:flex-row">
       <aside className="w-full space-y-4 overflow-y-auto p-4 md:w-96">
@@ -29,20 +47,20 @@ export default function Home() {
         <Card>
           <CardHeader><CardTitle>Parameters</CardTitle></CardHeader>
           <CardContent className="space-y-5">
-            <ToggleGroup value={[filterParams.day]} onValueChange={(value) => value[0] && updateFilterParam("day", value[0] as DayType)}>
+            <ToggleGroup value={[filterParams.day]} onValueChange={handleDayChange}>
               {["weekday", "saturday", "sunday"].map((day) => <ToggleGroupItem key={day} value={day}>{day}</ToggleGroupItem>)}
             </ToggleGroup>
-            <ToggleGroup value={[filterParams.band]} onValueChange={(value) => value[0] && updateFilterParam("band", value[0] as TimeBand)}>
+            <ToggleGroup value={[filterParams.band]} onValueChange={handleTimeBandChange}>
               {["am", "midday", "pm", "evening"].map((band) => <ToggleGroupItem key={band} value={band}>{band}</ToggleGroupItem>)}
             </ToggleGroup>
-            <ToggleGroup multiple value={filterParams.modes} onValueChange={(value) => updateFilterParam("modes", value as Mode[])}>
+            <ToggleGroup multiple value={filterParams.modes} onValueChange={handleModesChange}>
               {["tram", "metro", "rail", "bus"].map((mode) => <ToggleGroupItem key={mode} value={mode}>{mode}</ToggleGroupItem>)}
             </ToggleGroup>
             <label className="block text-sm">Min. departures/hour: {filterParams.minDeparturesPerHour}
-              <Slider min={0} max={20} step={1} value={[filterParams.minDeparturesPerHour]} onValueChange={(value) => updateFilterParam("minDeparturesPerHour", typeof value === "number" ? value : value[0])} />
+              <Slider min={0} max={20} step={1} value={[filterParams.minDeparturesPerHour]} onValueChange={handleMinDeparturesChange} />
             </label>
             <label className="block text-sm">Walking radius: {filterParams.radiusMeters} m
-              <Slider min={100} max={800} step={50} value={[filterParams.radiusMeters]} onValueChange={(value) => updateFilterParam("radiusMeters", typeof value === "number" ? value : value[0])} />
+              <Slider min={100} max={800} step={50} value={[filterParams.radiusMeters]} onValueChange={handleRadiusChange} />
             </label>
           </CardContent>
         </Card>
