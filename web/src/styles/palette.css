@@ -1,0 +1,29 @@
+/*
+ * Project colour palette: the only place raw colour values are defined.
+ * Semantic tokens in app/globals.css (--background, --primary, …) reference these;
+ * components use the semantic tokens / Tailwind classes, never these directly.
+ */
+:root {
+  /* Neutrals (oklch lightness, no chroma) */
+  --palette-neutral-0: oklch(1 0 0);
+  --palette-neutral-50: oklch(0.985 0 0);
+  --palette-neutral-100: oklch(0.97 0 0);
+  --palette-neutral-200: oklch(0.922 0 0);
+  --palette-neutral-300: oklch(0.87 0 0);
+  --palette-neutral-400: oklch(0.708 0 0);
+  --palette-neutral-500: oklch(0.556 0 0);
+  --palette-neutral-600: oklch(0.439 0 0);
+  --palette-neutral-700: oklch(0.371 0 0);
+  --palette-neutral-800: oklch(0.269 0 0);
+  --palette-neutral-900: oklch(0.205 0 0);
+  --palette-neutral-950: oklch(0.145 0 0);
+
+  /* Translucent white (dark-mode borders/inputs) */
+  --palette-white-a10: oklch(1 0 0 / 10%);
+  --palette-white-a15: oklch(1 0 0 / 15%);
+
+  /* Accents */
+  --palette-red-600: oklch(0.577 0.245 27.325);
+  --palette-red-400: oklch(0.704 0.191 22.216);
+  --palette-indigo-600: oklch(0.488 0.243 264.376);
+}
