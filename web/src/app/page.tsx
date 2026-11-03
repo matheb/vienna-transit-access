@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { coverage, filterStops, type Band, type DayType, type Mode, type Params, type Stop } from "@/lib/geo/coverage";
+import { fetchStops } from "@/services/stopsService";
 
 const TransitMap = dynamic(() => import("@/components/TransitMap"), { ssr: false });
 
@@ -13,7 +14,7 @@ export default function Home() {
   const [p, setP] = useState<Params>({ day: "weekday", band: "am", minDph: 4, radius: 400, modes: ["tram", "metro", "rail", "bus"] });
 
   useEffect(() => {
-    fetch("/data/stops.geojson").then((r) => r.json()).then((fc) => setAll(fc.features));
+    fetchStops().then(setAll);
   }, []);
 
   const stops = useMemo(() => filterStops(all, p), [all, p]);
