@@ -4,15 +4,28 @@ import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { filterStops, getCoverage, type DayType, type FilterParams, type Mode, type Stop, type TimeBand } from "@/lib/geo/coverage";
+import {
+  DAY_TYPES, SELECTABLE_MODES, TIME_BANDS, filterStops, getCoverage,
+  type DayType, type FilterParams, type Mode, type Stop, type TimeBand,
+} from "@/lib/geo/coverage";
 import { getSliderValue } from "@/lib/slider";
 import { fetchStops } from "@/services/stopsService";
 
 const TransitMap = dynamic(() => import("@/components/TransitMap"), { ssr: false });
 
+const DEFAULT_FILTER_PARAMS: FilterParams = {
+  day: "weekday",
+  band: "am",
+  minDeparturesPerHour: 4,
+  radiusMeters: 400,
+  modes: [...SELECTABLE_MODES],
+};
+const MIN_DEPARTURES_SLIDER = { min: 0, max: 20, step: 1 };
+const RADIUS_SLIDER = { min: 100, max: 800, step: 50 };
+
 export default function Home() {
   const [allStops, setAllStops] = useState<Stop[]>([]);
-  const [filterParams, setFilterParams] = useState<FilterParams>({ day: "weekday", band: "am", minDeparturesPerHour: 4, radiusMeters: 400, modes: ["tram", "metro", "rail", "bus"] });
+  const [filterParams, setFilterParams] = useState<FilterParams>(DEFAULT_FILTER_PARAMS);
 
   useEffect(() => {
     fetchStops().then(setAllStops);
@@ -48,19 +61,19 @@ export default function Home() {
           <CardHeader><CardTitle>Parameters</CardTitle></CardHeader>
           <CardContent className="space-y-5">
             <ToggleGroup value={[filterParams.day]} onValueChange={handleDayChange}>
-              {["weekday", "saturday", "sunday"].map((day) => <ToggleGroupItem key={day} value={day}>{day}</ToggleGroupItem>)}
+              {DAY_TYPES.map((day) => <ToggleGroupItem key={day} value={day}>{day}</ToggleGroupItem>)}
             </ToggleGroup>
             <ToggleGroup value={[filterParams.band]} onValueChange={handleTimeBandChange}>
-              {["am", "midday", "pm", "evening"].map((band) => <ToggleGroupItem key={band} value={band}>{band}</ToggleGroupItem>)}
+              {TIME_BANDS.map((band) => <ToggleGroupItem key={band} value={band}>{band}</ToggleGroupItem>)}
             </ToggleGroup>
             <ToggleGroup multiple value={filterParams.modes} onValueChange={handleModesChange}>
-              {["tram", "metro", "rail", "bus"].map((mode) => <ToggleGroupItem key={mode} value={mode}>{mode}</ToggleGroupItem>)}
+              {SELECTABLE_MODES.map((mode) => <ToggleGroupItem key={mode} value={mode}>{mode}</ToggleGroupItem>)}
             </ToggleGroup>
             <label className="block text-sm">Min. departures/hour: {filterParams.minDeparturesPerHour}
-              <Slider min={0} max={20} step={1} value={[filterParams.minDeparturesPerHour]} onValueChange={handleMinDeparturesChange} />
+              <Slider {...MIN_DEPARTURES_SLIDER} value={[filterParams.minDeparturesPerHour]} onValueChange={handleMinDeparturesChange} />
             </label>
             <label className="block text-sm">Walking radius: {filterParams.radiusMeters} m
-              <Slider min={100} max={800} step={50} value={[filterParams.radiusMeters]} onValueChange={handleRadiusChange} />
+              <Slider {...RADIUS_SLIDER} value={[filterParams.radiusMeters]} onValueChange={handleRadiusChange} />
             </label>
           </CardContent>
         </Card>

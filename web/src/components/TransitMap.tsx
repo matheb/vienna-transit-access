@@ -8,24 +8,34 @@ import Map, { Layer, Source } from "react-map-gl/maplibre";
 setWorkerUrl("/maplibre/maplibre-gl-worker.mjs");
 
 // Carto basemap: free, requires attribution (rendered by MapLibre automatically).
-const STYLE = "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
+const BASEMAP_STYLE_URL = "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
+const INITIAL_VIEW_STATE = { longitude: 16.373, latitude: 48.208, zoom: 11 }; // Vienna centre
+const MAP_CONTAINER_STYLE = { width: "100%", height: "100%" };
+const COVERAGE_FILL_OPACITY = 0.2;
+const COVERAGE_LINE_WIDTH = 1;
+const STOP_CIRCLE_RADIUS = 3;
+const STOP_CIRCLE_STROKE_WIDTH = 1;
 
-interface Props {
+interface TransitMapProps {
   stops: FeatureCollection;
   area: Feature<Polygon | MultiPolygon> | null;
 }
 
-export default function TransitMap({ stops, area }: Props) {
+export default function TransitMap({ stops, area }: TransitMapProps) {
   return (
-    <Map initialViewState={{ longitude: 16.373, latitude: 48.208, zoom: 11 }} mapStyle={STYLE} style={{ width: "100%", height: "100%" }}>
+    <Map initialViewState={INITIAL_VIEW_STATE} mapStyle={BASEMAP_STYLE_URL} style={MAP_CONTAINER_STYLE}>
       {area && (
         <Source id="coverage" type="geojson" data={area}>
-          <Layer id="coverage-fill" type="fill" paint={{ "fill-color": "#2563eb", "fill-opacity": 0.2 }} />
-          <Layer id="coverage-line" type="line" paint={{ "line-color": "#2563eb", "line-width": 1 }} />
+          <Layer id="coverage-fill" type="fill" paint={{ "fill-color": "#2563eb", "fill-opacity": COVERAGE_FILL_OPACITY }} />
+          <Layer id="coverage-line" type="line" paint={{ "line-color": "#2563eb", "line-width": COVERAGE_LINE_WIDTH }} />
         </Source>
       )}
       <Source id="stops" type="geojson" data={stops}>
-        <Layer id="stops-circle" type="circle" paint={{ "circle-radius": 3, "circle-color": "#1e3a8a", "circle-stroke-width": 1, "circle-stroke-color": "#fff" }} />
+        <Layer
+          id="stops-circle"
+          type="circle"
+          paint={{ "circle-radius": STOP_CIRCLE_RADIUS, "circle-color": "#1e3a8a", "circle-stroke-width": STOP_CIRCLE_STROKE_WIDTH, "circle-stroke-color": "#fff" }}
+        />
       </Source>
     </Map>
   );
