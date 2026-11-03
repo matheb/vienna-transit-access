@@ -2,6 +2,10 @@ import type { DayType, Mode, TimeBand } from "@/lib/geo/coverage";
 
 // English UI text. Shaped like a next-intl message file (namespaces → keys) so it can move to en.json later.
 export const messages = {
+  metadata: {
+    title: "Vienna transit accessibility",
+    description: "Areas of Vienna within walking distance of frequent public transit.",
+  },
   home: {
     title: "Vienna transit accessibility",
     parametersTitle: "Parameters",
