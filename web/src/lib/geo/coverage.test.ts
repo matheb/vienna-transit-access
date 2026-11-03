@@ -7,7 +7,7 @@ import { SELECTABLE_MODES, filterStops, getCoverage, type FilterParams, type Sto
 const REAL_STOPS_PATH = path.resolve(__dirname, "../../../public/data/stops.geojson");
 // Largest difference measured with scripts/benchmark-coverage.mjs at 25 m cells was 0.73 %.
 const MAX_RELATIVE_AREA_DIFFERENCE = 0.02;
-const UNION_REFERENCE_TIMEOUT_MS = 60_000; // the old exact union takes up to ~10 s per case
+const UNION_REFERENCE_TIMEOUT_MS = 30_000; // the old exact union takes about 0.5–3.5 s for these cases
 
 const makeStop = (id: string, lon: number, dph: number, modes: Stop["properties"]["modes"] = ["bus"]): Stop => ({
   type: "Feature",
@@ -37,7 +37,11 @@ describe("getCoverage", () => {
 
 describe("getCoverage on the real stops", () => {
   const allStops: Stop[] = JSON.parse(readFileSync(REAL_STOPS_PATH, "utf8")).features;
-  const cases = [4, 20].flatMap((minDeparturesPerHour) => [100, 400, 800].map((radiusMeters) => ({ minDeparturesPerHour, radiusMeters })));
+  // Two representative cases keep npm test fast; scripts/benchmark-coverage.mjs compares the full table.
+  const cases = [
+    { minDeparturesPerHour: 4, radiusMeters: 400 },
+    { minDeparturesPerHour: 20, radiusMeters: 100 },
+  ];
 
   it.each(cases)(
     "stays within 2 % of the exact union area at $minDeparturesPerHour departures/h and $radiusMeters m",

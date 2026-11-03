@@ -1,6 +1,6 @@
 "use client";
 import dynamic from "next/dynamic";
-import { useEffect, useMemo, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import LabeledSlider, { type SliderRange } from "@/components/LabeledSlider";
 import OptionToggleGroup from "@/components/OptionToggleGroup";
@@ -33,8 +33,14 @@ export default function Home() {
     fetchStops().then(setAllStops);
   }, []);
 
-  const qualifyingStops = useMemo(() => filterStops(allStops, filterParams), [allStops, filterParams]);
-  const coverage = useMemo(() => getCoverage(qualifyingStops, filterParams.radiusMeters), [qualifyingStops, filterParams.radiusMeters]);
+  // Controls render from filterParams immediately; the map and numbers follow the deferred copy,
+  // so slider thumbs stay smooth while the coverage (tens of ms) is recomputed.
+  const deferredFilterParams = useDeferredValue(filterParams);
+  const qualifyingStops = useMemo(() => filterStops(allStops, deferredFilterParams), [allStops, deferredFilterParams]);
+  const coverage = useMemo(
+    () => getCoverage(qualifyingStops, deferredFilterParams.radiusMeters),
+    [qualifyingStops, deferredFilterParams.radiusMeters],
+  );
   const updateFilterParam = <K extends keyof FilterParams>(key: K, value: FilterParams[K]) =>
     setFilterParams((previous) => ({ ...previous, [key]: value }));
 
