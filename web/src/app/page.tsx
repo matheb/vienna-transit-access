@@ -2,13 +2,12 @@
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Slider } from "@/components/ui/slider";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import LabeledSlider, { type SliderRange } from "@/components/LabeledSlider";
+import OptionToggleGroup from "@/components/OptionToggleGroup";
 import {
   DAY_TYPES, SELECTABLE_MODES, TIME_BANDS, filterStops, getCoverage,
   type DayType, type FilterParams, type Mode, type Stop, type TimeBand,
 } from "@/lib/geo/coverage";
-import { getSliderValue } from "@/lib/slider";
 import { messages } from "@/i18n/en";
 import { fetchStops } from "@/services/stopsService";
 
@@ -23,8 +22,8 @@ const DEFAULT_FILTER_PARAMS: FilterParams = {
   radiusMeters: 400,
   modes: [...SELECTABLE_MODES],
 };
-const MIN_DEPARTURES_SLIDER = { min: 0, max: 20, step: 1 };
-const RADIUS_SLIDER = { min: 100, max: 800, step: 50 };
+const MIN_DEPARTURES_SLIDER: SliderRange = { min: 0, max: 20, step: 1 };
+const RADIUS_SLIDER: SliderRange = { min: 100, max: 800, step: 50 };
 
 export default function Home() {
   const [allStops, setAllStops] = useState<Stop[]>([]);
@@ -49,11 +48,11 @@ export default function Home() {
   function handleModesChange(value: string[]) {
     updateFilterParam("modes", value as Mode[]);
   }
-  function handleMinDeparturesChange(value: number | readonly number[]) {
-    updateFilterParam("minDeparturesPerHour", getSliderValue(value));
+  function handleMinDeparturesChange(value: number) {
+    updateFilterParam("minDeparturesPerHour", value);
   }
-  function handleRadiusChange(value: number | readonly number[]) {
-    updateFilterParam("radiusMeters", getSliderValue(value));
+  function handleRadiusChange(value: number) {
+    updateFilterParam("radiusMeters", value);
   }
 
   return (
@@ -63,21 +62,22 @@ export default function Home() {
         <Card>
           <CardHeader><CardTitle>{homeMessages.parametersTitle}</CardTitle></CardHeader>
           <CardContent className="space-y-5">
-            <ToggleGroup value={[filterParams.day]} onValueChange={handleDayChange}>
-              {DAY_TYPES.map((day) => <ToggleGroupItem key={day} value={day}>{messages.dayTypes[day]}</ToggleGroupItem>)}
-            </ToggleGroup>
-            <ToggleGroup value={[filterParams.band]} onValueChange={handleTimeBandChange}>
-              {TIME_BANDS.map((band) => <ToggleGroupItem key={band} value={band}>{messages.timeBands[band]}</ToggleGroupItem>)}
-            </ToggleGroup>
-            <ToggleGroup multiple value={filterParams.modes} onValueChange={handleModesChange}>
-              {SELECTABLE_MODES.map((mode) => <ToggleGroupItem key={mode} value={mode}>{messages.modes[mode]}</ToggleGroupItem>)}
-            </ToggleGroup>
-            <label className="block text-sm">{homeMessages.minDeparturesLabel} {filterParams.minDeparturesPerHour}
-              <Slider {...MIN_DEPARTURES_SLIDER} value={[filterParams.minDeparturesPerHour]} onValueChange={handleMinDeparturesChange} />
-            </label>
-            <label className="block text-sm">{homeMessages.radiusLabel} {filterParams.radiusMeters} {homeMessages.radiusUnit}
-              <Slider {...RADIUS_SLIDER} value={[filterParams.radiusMeters]} onValueChange={handleRadiusChange} />
-            </label>
+            <OptionToggleGroup options={DAY_TYPES} labels={messages.dayTypes} value={[filterParams.day]} onValueChange={handleDayChange} />
+            <OptionToggleGroup options={TIME_BANDS} labels={messages.timeBands} value={[filterParams.band]} onValueChange={handleTimeBandChange} />
+            <OptionToggleGroup multiple options={SELECTABLE_MODES} labels={messages.modes} value={filterParams.modes} onValueChange={handleModesChange} />
+            <LabeledSlider
+              label={homeMessages.minDeparturesLabel}
+              value={filterParams.minDeparturesPerHour}
+              range={MIN_DEPARTURES_SLIDER}
+              onValueChange={handleMinDeparturesChange}
+            />
+            <LabeledSlider
+              label={homeMessages.radiusLabel}
+              value={filterParams.radiusMeters}
+              unit={homeMessages.radiusUnit}
+              range={RADIUS_SLIDER}
+              onValueChange={handleRadiusChange}
+            />
           </CardContent>
         </Card>
         <Card>
