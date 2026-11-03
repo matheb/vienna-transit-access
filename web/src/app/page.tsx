@@ -2,57 +2,98 @@
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Slider } from "@/components/ui/slider";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { coverage, filterStops, type Band, type DayType, type Mode, type Params, type Stop } from "@/lib/geo/coverage";
+import LabeledSlider, { type SliderRange } from "@/components/LabeledSlider";
+import OptionToggleGroup from "@/components/OptionToggleGroup";
+import {
+  DAY_TYPES, SELECTABLE_MODES, TIME_BANDS, filterStops, getCoverage,
+  type DayType, type FilterParams, type Mode, type Stop, type TimeBand,
+} from "@/lib/geo/coverage";
+import { messages } from "@/i18n/en";
+import { fetchStops } from "@/services/stopsService";
 
 const TransitMap = dynamic(() => import("@/components/TransitMap"), { ssr: false });
 
+const homeMessages = messages.home;
+
+const DEFAULT_FILTER_PARAMS: FilterParams = {
+  day: "weekday",
+  band: "am",
+  minDeparturesPerHour: 4,
+  radiusMeters: 400,
+  modes: [...SELECTABLE_MODES],
+};
+const MIN_DEPARTURES_SLIDER: SliderRange = { min: 0, max: 20, step: 1 };
+const RADIUS_SLIDER: SliderRange = { min: 100, max: 800, step: 50 };
+
 export default function Home() {
-  const [all, setAll] = useState<Stop[]>([]);
-  const [p, setP] = useState<Params>({ day: "weekday", band: "am", minDph: 4, radius: 400, modes: ["tram", "metro", "rail", "bus"] });
+  const [allStops, setAllStops] = useState<Stop[]>([]);
+  const [filterParams, setFilterParams] = useState<FilterParams>(DEFAULT_FILTER_PARAMS);
 
   useEffect(() => {
-    fetch("/data/stops.geojson").then((r) => r.json()).then((fc) => setAll(fc.features));
+    fetchStops().then(setAllStops);
   }, []);
 
-  const stops = useMemo(() => filterStops(all, p), [all, p]);
-  const cov = useMemo(() => coverage(stops, p.radius), [stops, p.radius]);
-  const set = <K extends keyof Params>(k: K, v: Params[K]) => setP((s) => ({ ...s, [k]: v }));
+  const qualifyingStops = useMemo(() => filterStops(allStops, filterParams), [allStops, filterParams]);
+  const coverage = useMemo(() => getCoverage(qualifyingStops, filterParams.radiusMeters), [qualifyingStops, filterParams.radiusMeters]);
+  const updateFilterParam = <K extends keyof FilterParams>(key: K, value: FilterParams[K]) =>
+    setFilterParams((previous) => ({ ...previous, [key]: value }));
+
+  // Single-select toggle groups report [] when the active item is clicked again; keep the current value then.
+  function handleDayChange(value: string[]) {
+    if (value[0]) updateFilterParam("day", value[0] as DayType);
+  }
+  function handleTimeBandChange(value: string[]) {
+    if (value[0]) updateFilterParam("band", value[0] as TimeBand);
+  }
+  function handleModesChange(value: string[]) {
+    updateFilterParam("modes", value as Mode[]);
+  }
+  function handleMinDeparturesChange(value: number) {
+    updateFilterParam("minDeparturesPerHour", value);
+  }
+  function handleRadiusChange(value: number) {
+    updateFilterParam("radiusMeters", value);
+  }
 
   return (
     <main className="flex h-screen flex-col md:flex-row">
       <aside className="w-full space-y-4 overflow-y-auto p-4 md:w-96">
-        <h1 className="text-xl font-semibold">Vienna transit accessibility</h1>
+        <h1 className="text-xl font-semibold">{homeMessages.title}</h1>
         <Card>
-          <CardHeader><CardTitle>Parameters</CardTitle></CardHeader>
+          <CardHeader><CardTitle>{homeMessages.parametersTitle}</CardTitle></CardHeader>
           <CardContent className="space-y-5">
-            <ToggleGroup value={[p.day]} onValueChange={(v) => v[0] && set("day", v[0] as DayType)}>
-              {["weekday", "saturday", "sunday"].map((d) => <ToggleGroupItem key={d} value={d}>{d}</ToggleGroupItem>)}
-            </ToggleGroup>
-            <ToggleGroup value={[p.band]} onValueChange={(v) => v[0] && set("band", v[0] as Band)}>
-              {["am", "midday", "pm", "evening"].map((b) => <ToggleGroupItem key={b} value={b}>{b}</ToggleGroupItem>)}
-            </ToggleGroup>
-            <ToggleGroup multiple value={p.modes} onValueChange={(v) => set("modes", v as Mode[])}>
-              {["tram", "metro", "rail", "bus"].map((m) => <ToggleGroupItem key={m} value={m}>{m}</ToggleGroupItem>)}
-            </ToggleGroup>
-            <label className="block text-sm">Min. departures/hour: {p.minDph}
-              <Slider min={0} max={20} step={1} value={[p.minDph]} onValueChange={(v) => set("minDph", typeof v === "number" ? v : v[0])} />
-            </label>
-            <label className="block text-sm">Walking radius: {p.radius} m
-              <Slider min={100} max={800} step={50} value={[p.radius]} onValueChange={(v) => set("radius", typeof v === "number" ? v : v[0])} />
-            </label>
+            <OptionToggleGroup options={DAY_TYPES} labels={messages.dayTypes} value={[filterParams.day]} onValueChange={handleDayChange} />
+            <OptionToggleGroup options={TIME_BANDS} labels={messages.timeBands} value={[filterParams.band]} onValueChange={handleTimeBandChange} />
+            <OptionToggleGroup multiple options={SELECTABLE_MODES} labels={messages.modes} value={filterParams.modes} onValueChange={handleModesChange} />
+            <LabeledSlider
+              label={homeMessages.minDeparturesLabel}
+              value={filterParams.minDeparturesPerHour}
+              range={MIN_DEPARTURES_SLIDER}
+              onValueChange={handleMinDeparturesChange}
+            />
+            <LabeledSlider
+              label={homeMessages.radiusLabel}
+              value={filterParams.radiusMeters}
+              unit={homeMessages.radiusUnit}
+              range={RADIUS_SLIDER}
+              onValueChange={handleRadiusChange}
+            />
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6 text-sm">
-            <p><b>{stops.length}</b> of {all.length} stops qualify</p>
-            <p>Covered area: <b>{cov.km2.toFixed(1)} km²</b> ({(cov.share * 100).toFixed(0)}% of Vienna, approx.)</p>
+            <p>
+              <b>{qualifyingStops.length}</b> {homeMessages.stopsSummary.of} {allStops.length} {homeMessages.stopsSummary.suffix}
+            </p>
+            <p>
+              {homeMessages.coveredArea.label} <b>{coverage.areaKm2.toFixed(1)} {homeMessages.coveredArea.unit}</b>{" "}
+              ({(coverage.viennaShare * 100).toFixed(0)}{homeMessages.coveredArea.shareSuffix})
+            </p>
           </CardContent>
         </Card>
       </aside>
       <section className="h-[60vh] flex-1 md:h-auto">
-        <TransitMap stops={{ type: "FeatureCollection", features: stops }} area={cov.polygon} />
+        <TransitMap stops={{ type: "FeatureCollection", features: qualifyingStops }} area={coverage.polygon} />
       </section>
     </main>
   );
