@@ -10,16 +10,17 @@ import { fetchStops } from "@/services/stopsService";
 const TransitMap = dynamic(() => import("@/components/TransitMap"), { ssr: false });
 
 export default function Home() {
-  const [all, setAll] = useState<Stop[]>([]);
-  const [p, setP] = useState<FilterParams>({ day: "weekday", band: "am", minDeparturesPerHour: 4, radiusMeters: 400, modes: ["tram", "metro", "rail", "bus"] });
+  const [allStops, setAllStops] = useState<Stop[]>([]);
+  const [filterParams, setFilterParams] = useState<FilterParams>({ day: "weekday", band: "am", minDeparturesPerHour: 4, radiusMeters: 400, modes: ["tram", "metro", "rail", "bus"] });
 
   useEffect(() => {
-    fetchStops().then(setAll);
+    fetchStops().then(setAllStops);
   }, []);
 
-  const stops = useMemo(() => filterStops(all, p), [all, p]);
-  const cov = useMemo(() => getCoverage(stops, p.radiusMeters), [stops, p.radiusMeters]);
-  const set = <K extends keyof FilterParams>(k: K, v: FilterParams[K]) => setP((s) => ({ ...s, [k]: v }));
+  const qualifyingStops = useMemo(() => filterStops(allStops, filterParams), [allStops, filterParams]);
+  const coverage = useMemo(() => getCoverage(qualifyingStops, filterParams.radiusMeters), [qualifyingStops, filterParams.radiusMeters]);
+  const updateFilterParam = <K extends keyof FilterParams>(key: K, value: FilterParams[K]) =>
+    setFilterParams((previous) => ({ ...previous, [key]: value }));
 
   return (
     <main className="flex h-screen flex-col md:flex-row">
@@ -28,32 +29,32 @@ export default function Home() {
         <Card>
           <CardHeader><CardTitle>Parameters</CardTitle></CardHeader>
           <CardContent className="space-y-5">
-            <ToggleGroup value={[p.day]} onValueChange={(v) => v[0] && set("day", v[0] as DayType)}>
-              {["weekday", "saturday", "sunday"].map((d) => <ToggleGroupItem key={d} value={d}>{d}</ToggleGroupItem>)}
+            <ToggleGroup value={[filterParams.day]} onValueChange={(value) => value[0] && updateFilterParam("day", value[0] as DayType)}>
+              {["weekday", "saturday", "sunday"].map((day) => <ToggleGroupItem key={day} value={day}>{day}</ToggleGroupItem>)}
             </ToggleGroup>
-            <ToggleGroup value={[p.band]} onValueChange={(v) => v[0] && set("band", v[0] as TimeBand)}>
-              {["am", "midday", "pm", "evening"].map((b) => <ToggleGroupItem key={b} value={b}>{b}</ToggleGroupItem>)}
+            <ToggleGroup value={[filterParams.band]} onValueChange={(value) => value[0] && updateFilterParam("band", value[0] as TimeBand)}>
+              {["am", "midday", "pm", "evening"].map((band) => <ToggleGroupItem key={band} value={band}>{band}</ToggleGroupItem>)}
             </ToggleGroup>
-            <ToggleGroup multiple value={p.modes} onValueChange={(v) => set("modes", v as Mode[])}>
-              {["tram", "metro", "rail", "bus"].map((m) => <ToggleGroupItem key={m} value={m}>{m}</ToggleGroupItem>)}
+            <ToggleGroup multiple value={filterParams.modes} onValueChange={(value) => updateFilterParam("modes", value as Mode[])}>
+              {["tram", "metro", "rail", "bus"].map((mode) => <ToggleGroupItem key={mode} value={mode}>{mode}</ToggleGroupItem>)}
             </ToggleGroup>
-            <label className="block text-sm">Min. departures/hour: {p.minDeparturesPerHour}
-              <Slider min={0} max={20} step={1} value={[p.minDeparturesPerHour]} onValueChange={(v) => set("minDeparturesPerHour", typeof v === "number" ? v : v[0])} />
+            <label className="block text-sm">Min. departures/hour: {filterParams.minDeparturesPerHour}
+              <Slider min={0} max={20} step={1} value={[filterParams.minDeparturesPerHour]} onValueChange={(value) => updateFilterParam("minDeparturesPerHour", typeof value === "number" ? value : value[0])} />
             </label>
-            <label className="block text-sm">Walking radius: {p.radiusMeters} m
-              <Slider min={100} max={800} step={50} value={[p.radiusMeters]} onValueChange={(v) => set("radiusMeters", typeof v === "number" ? v : v[0])} />
+            <label className="block text-sm">Walking radius: {filterParams.radiusMeters} m
+              <Slider min={100} max={800} step={50} value={[filterParams.radiusMeters]} onValueChange={(value) => updateFilterParam("radiusMeters", typeof value === "number" ? value : value[0])} />
             </label>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6 text-sm">
-            <p><b>{stops.length}</b> of {all.length} stops qualify</p>
-            <p>Covered area: <b>{cov.areaKm2.toFixed(1)} km²</b> ({(cov.viennaShare * 100).toFixed(0)}% of Vienna, approx.)</p>
+            <p><b>{qualifyingStops.length}</b> of {allStops.length} stops qualify</p>
+            <p>Covered area: <b>{coverage.areaKm2.toFixed(1)} km²</b> ({(coverage.viennaShare * 100).toFixed(0)}% of Vienna, approx.)</p>
           </CardContent>
         </Card>
       </aside>
       <section className="h-[60vh] flex-1 md:h-auto">
-        <TransitMap stops={{ type: "FeatureCollection", features: stops }} area={cov.polygon} />
+        <TransitMap stops={{ type: "FeatureCollection", features: qualifyingStops }} area={coverage.polygon} />
       </section>
     </main>
   );
