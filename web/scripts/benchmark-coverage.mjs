@@ -4,7 +4,8 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { performance } from "node:perf_hooks";
-import { SELECTABLE_MODES, filterStops, getCoverage } from "../src/lib/geo/coverage.ts";
+import { SELECTABLE_MODES, filterStops } from "../src/lib/geo/coverage.ts";
+import { getUnionCoverage } from "./reference/getUnionCoverage.mjs";
 
 const WEB_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const STOPS_PATH = join(WEB_ROOT, "public/data/stops.geojson");
@@ -20,13 +21,13 @@ function getMedian(values) {
   return sorted[Math.floor(sorted.length / 2)];
 }
 
-function getTiming(stops, radiusMeters) {
+function getTiming(getCoverageResult, stops, radiusMeters) {
   let coverage;
-  for (let i = 0; i < WARMUP_RUNS; i++) coverage = getCoverage(stops, radiusMeters);
+  for (let i = 0; i < WARMUP_RUNS; i++) coverage = getCoverageResult(stops, radiusMeters);
   const durationsMs = [];
   for (let i = 0; i < TIMED_RUNS; i++) {
     const startMs = performance.now();
-    coverage = getCoverage(stops, radiusMeters);
+    coverage = getCoverageResult(stops, radiusMeters);
     durationsMs.push(performance.now() - startMs);
   }
   return { medianMs: getMedian(durationsMs), areaKm2: coverage.areaKm2 };
@@ -38,7 +39,7 @@ const results = [];
 for (const minDeparturesPerHour of MIN_DEPARTURES_CASES) {
   for (const radiusMeters of RADIUS_METERS_CASES) {
     const stops = filterStops(allStops, { ...BASE_FILTER_PARAMS, minDeparturesPerHour, radiusMeters });
-    const { medianMs, areaKm2 } = getTiming(stops, radiusMeters);
+    const { medianMs, areaKm2 } = getTiming(getUnionCoverage, stops, radiusMeters);
     results.push({ minDeparturesPerHour, radiusMeters, stops: stops.length, medianMs: Math.round(medianMs), areaKm2: Number(areaKm2.toFixed(3)) });
   }
 }
