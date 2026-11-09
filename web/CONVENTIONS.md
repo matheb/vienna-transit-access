@@ -35,3 +35,12 @@ Rules for agents and humans changing code in `web/`. Some target locations (e.g.
 ## Styles & colours
 - Primitive colours are defined once in `src/styles/palette.css` (`--palette-*`). Semantic tokens in `globals.css` (`--primary`, `--border`, …) reference the palette; components use the semantic tokens or Tailwind classes, never raw colour values.
 - MapLibre cannot read CSS variables: map colours come from `src/styles/mapColors.ts`, which mirrors `palette.css` (keep the two in sync).
+
+## Testing
+- Vitest + React Testing Library. Tests sit next to the code as `name.test.ts` (logic, node environment) or `Name.test.tsx` (components). Shared helpers live in `src/test/`.
+- Component tests start with `// @vitest-environment jsdom` and import `@/test/setupDom`; node tests load no DOM code.
+- Mock `TransitMap` (no WebGL) and `fetchStops` (no network), and assert on the props the map mock received. When mocking `stopsService`, keep its real exports with `importOriginal`, because `StopsLoadStatus` is a runtime enum. Keep pure logic in `src/lib/geo/` real.
+- Query by role and accessible label; use `getByText` only for plain text with no role. Never query by CSS class; no snapshot tests.
+- Find sliders with `getByLabelText`: Base UI keeps the thumb `visibility: hidden` in jsdom (no layout), which hides it from `getByRole`.
+- Check that a test for a guard or edge case fails when that code is removed. A successful `setState` after unmount is invisible at page level, so test it on the helper directly.
+- Do not test generated files in `src/components/ui/`.
