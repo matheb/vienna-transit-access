@@ -1,5 +1,7 @@
 # Vienna transit accessibility
 
+[![CI](https://github.com/matheb/vienna-transit-access/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/matheb/vienna-transit-access/actions/workflows/ci.yml)
+
 Which parts of Vienna are within walking distance of frequent public transport?
 Data: Wiener Linien GTFS (data.gv.at, check licence/attribution). Map: MapLibre + Carto basemap.
 
