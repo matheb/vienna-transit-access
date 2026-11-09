@@ -26,6 +26,20 @@ Rules for agents and humans changing code in `web/`. Some target locations (e.g.
 - Types that other files can reuse go outside components, next to the module that owns the concept (`StopsLoadStatus` in `stopsService.ts`). Reuse an existing type before adding a new type or constant for the same values.
 - Extract repeated Tailwind class strings or JSX blocks into small components in `src/components/`.
 
+## Messages (`src/i18n/en.ts`)
+- The top-level key is the component or feature that uses the text, in PascalCase and spelled exactly like the component. This is the one exception to camelCase naming.
+- A text belongs to the component that reads it from `messages`. Generic components that receive text as props (`LabeledSlider`, `OptionToggleGroup`) have no namespace of their own.
+- The second level names the role of the text: `title`, `label`, `description`, `unit`, `loading`, `error`, ... If a component has several texts of the same role, group them by element first.
+- A single text uses a singular role such as `label`. A map from option value to text uses `options`.
+- Text deliberately shared by several components goes in `Common`. Two texts that merely have the same words keep separate keys.
+- Dynamic texts (counts, areas) stay split around their values until a localization package adds ICU messages.
+- Keep `messages` as `as const` so a wrong key fails typecheck. Keys that mirror data-contract values (`weekday`, `am`, `tram`) must not be renamed.
+- `npm run lint` rejects hard-coded text in `src/app/` and `src/components/`.
+
+Examples:
+- One text of a role: `ResultsCard.loading` -> "Loading stops…"
+- Grouped by element: `ControlsPanel.radiusSlider.label` -> "Walking radius:" and `ControlsPanel.dayToggle.options.weekday` -> "weekday"
+
 ## React & TypeScript
 - Do not define functions inside `useEffect`. Keep the effect to one call to a helper outside the component that returns its cleanup: `useEffect(() => startStopsLoad(setAllStops, setLoadStatus), [])`.
 - Async work started from an effect must ignore results that arrive after cleanup (unmount, React Strict Mode).

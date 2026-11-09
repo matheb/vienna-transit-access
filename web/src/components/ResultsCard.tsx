@@ -20,15 +20,15 @@ export default function ResultsCard({ loadStatus, qualifyingStopCount, totalStop
       <CardContent className="grid pt-6 text-sm">
         <div className={RESULTS_GRID_CELL_CLASS} style={isReady ? undefined : HIDDEN_KEEPING_LAYOUT_STYLE}>
           <p>
-            <b>{qualifyingStopCount}</b> {messages.home.stopsSummary.of} {totalStopCount} {messages.home.stopsSummary.suffix}
+            <b>{qualifyingStopCount}</b> {messages.ResultsCard.stopsSummary.of} {totalStopCount} {messages.ResultsCard.stopsSummary.suffix}
           </p>
           <p>
-            {messages.home.coveredArea.label} <b>{displayedCoverage.areaKm2.toFixed(1)} {messages.home.coveredArea.unit}</b>{" "}
-            ({(displayedCoverage.viennaShare * 100).toFixed(0)}{messages.home.coveredArea.shareSuffix})
+            {messages.ResultsCard.coveredArea.label} <b>{displayedCoverage.areaKm2.toFixed(1)} {messages.ResultsCard.coveredArea.unit}</b>{" "}
+            ({(displayedCoverage.viennaShare * 100).toFixed(0)}{messages.ResultsCard.coveredArea.shareSuffix})
           </p>
         </div>
-        {loadStatus === StopsLoadStatus.loading && <p role="status" className={RESULTS_GRID_CELL_CLASS}>{messages.home.stopsStatus.loading}</p>}
-        {loadStatus === StopsLoadStatus.error && <p role="alert" className={RESULTS_GRID_CELL_CLASS}>{messages.home.stopsStatus.error}</p>}
+        {loadStatus === StopsLoadStatus.loading && <p role="status" className={RESULTS_GRID_CELL_CLASS}>{messages.ResultsCard.loading}</p>}
+        {loadStatus === StopsLoadStatus.error && <p role="alert" className={RESULTS_GRID_CELL_CLASS}>{messages.ResultsCard.error}</p>}
       </CardContent>
     </Card>
   );

@@ -11,7 +11,7 @@ import { StopsLoadStatus } from "@/services/stopsService";
 
 const TransitMap = dynamic(() => import("@/components/TransitMap"), { ssr: false });
 
-export default function Home() {
+export default function HomePage() {
   const [allStops, setAllStops] = useState<Stop[]>([]);
   const [loadStatus, setLoadStatus] = useState<StopsLoadStatus>(StopsLoadStatus.loading);
   const [filterParams, setFilterParams] = useState<FilterParams>(DEFAULT_FILTER_PARAMS);
@@ -32,7 +32,7 @@ export default function Home() {
   return (
     <main className="flex h-screen flex-col md:flex-row">
       <aside className="w-full space-y-4 overflow-y-auto p-4 md:w-96">
-        <h1 className="text-xl font-semibold">{messages.home.title}</h1>
+        <h1 className="text-xl font-semibold">{messages.HomePage.title}</h1>
         <ControlsPanel filterParams={filterParams} onFilterParamChange={updateFilterParam} />
         <ResultsCard
           loadStatus={loadStatus}
