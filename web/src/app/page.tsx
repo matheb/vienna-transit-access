@@ -8,8 +8,10 @@ import {
   DAY_TYPES, SELECTABLE_MODES, TIME_BANDS, filterStops, getCoverage,
   type DayType, type FilterParams, type Mode, type Stop, type TimeBand,
 } from "@/lib/geo/coverage";
+import { HIDDEN_KEEPING_LAYOUT_STYLE, LAYOUT_RESERVING_COVERAGE, RESULTS_GRID_CELL_CLASS } from "@/constants/home";
 import { messages } from "@/i18n/en";
-import { fetchStops } from "@/services/stopsService";
+import { startStopsLoad } from "@/services/stopsLoader";
+import { StopsLoadStatus } from "@/services/stopsService";
 
 const TransitMap = dynamic(() => import("@/components/TransitMap"), { ssr: false });
 
@@ -27,11 +29,10 @@ const RADIUS_SLIDER: SliderRange = { min: 100, max: 800, step: 50 };
 
 export default function Home() {
   const [allStops, setAllStops] = useState<Stop[]>([]);
+  const [loadStatus, setLoadStatus] = useState<StopsLoadStatus>(StopsLoadStatus.loading);
   const [filterParams, setFilterParams] = useState<FilterParams>(DEFAULT_FILTER_PARAMS);
 
-  useEffect(() => {
-    fetchStops().then(setAllStops);
-  }, []);
+  useEffect(() => startStopsLoad(setAllStops, setLoadStatus), []);
 
   // Controls render from filterParams immediately; the map and numbers follow the deferred copy,
   // so slider thumbs stay smooth while the coverage (tens of ms) is recomputed.
@@ -41,6 +42,8 @@ export default function Home() {
     () => getCoverage(qualifyingStops, deferredFilterParams.radiusMeters),
     [qualifyingStops, deferredFilterParams.radiusMeters],
   );
+  const isReady = loadStatus === StopsLoadStatus.ready;
+  const displayedCoverage = isReady ? coverage : LAYOUT_RESERVING_COVERAGE;
   const updateFilterParam = <K extends keyof FilterParams>(key: K, value: FilterParams[K]) =>
     setFilterParams((previous) => ({ ...previous, [key]: value }));
 
@@ -87,14 +90,18 @@ export default function Home() {
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="pt-6 text-sm">
-            <p>
-              <b>{qualifyingStops.length}</b> {homeMessages.stopsSummary.of} {allStops.length} {homeMessages.stopsSummary.suffix}
-            </p>
-            <p>
-              {homeMessages.coveredArea.label} <b>{coverage.areaKm2.toFixed(1)} {homeMessages.coveredArea.unit}</b>{" "}
-              ({(coverage.viennaShare * 100).toFixed(0)}{homeMessages.coveredArea.shareSuffix})
-            </p>
+          <CardContent className="grid pt-6 text-sm">
+            <div className={RESULTS_GRID_CELL_CLASS} style={isReady ? undefined : HIDDEN_KEEPING_LAYOUT_STYLE}>
+              <p>
+                <b>{qualifyingStops.length}</b> {homeMessages.stopsSummary.of} {allStops.length} {homeMessages.stopsSummary.suffix}
+              </p>
+              <p>
+                {homeMessages.coveredArea.label} <b>{displayedCoverage.areaKm2.toFixed(1)} {homeMessages.coveredArea.unit}</b>{" "}
+                ({(displayedCoverage.viennaShare * 100).toFixed(0)}{homeMessages.coveredArea.shareSuffix})
+              </p>
+            </div>
+            {loadStatus === StopsLoadStatus.loading && <p role="status" className={RESULTS_GRID_CELL_CLASS}>{homeMessages.stopsStatus.loading}</p>}
+            {loadStatus === StopsLoadStatus.error && <p role="alert" className={RESULTS_GRID_CELL_CLASS}>{homeMessages.stopsStatus.error}</p>}
           </CardContent>
         </Card>
       </aside>

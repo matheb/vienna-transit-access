@@ -22,8 +22,15 @@ Rules for agents and humans changing code in `web/`. Some target locations (e.g.
 - Data fetching lives in `src/services/` (e.g. `stopsService.ts`), not in components.
 - All user-facing text lives in `src/i18n/en.ts` as a next-intl-shaped `messages` object (we plan to add a localization package).
 - Pure geo logic lives in `src/lib/geo/` and is unit-tested; UI lives in `src/components/`.
-- Constants such as fonts and class strings go outside components (fonts in `src/app/fonts.ts`).
+- Constants such as fonts and class strings go outside components, so component files stay small (fonts in `src/app/fonts.ts`, other constants in `src/constants/<area>.ts`, e.g. `src/constants/home.ts`).
+- Types that other files can reuse go outside components, next to the module that owns the concept (`StopsLoadStatus` in `stopsService.ts`). Reuse an existing type before adding a new type or constant for the same values.
 - Extract repeated Tailwind class strings or JSX blocks into small components in `src/components/`.
+
+## React & TypeScript
+- Do not define functions inside `useEffect`. Keep the effect to one call to a helper outside the component that returns its cleanup: `useEffect(() => startStopsLoad(setAllStops, setLoadStatus), [])`.
+- Async work started from an effect must ignore results that arrive after cleanup (unmount, React Strict Mode).
+- Fixed sets of app-state values are TypeScript enums, used through their members (`StopsLoadStatus.ready`), not bare strings. Data-contract values from `stops.geojson` keep their `as const` arrays and union types (`DAY_TYPES`, `DayType`).
+- Use `??` for a null/undefined fallback. Use a ternary when the condition is a boolean, because `??` would never fall through.
 
 ## Styles & colours
 - Primitive colours are defined once in `src/styles/palette.css` (`--palette-*`). Semantic tokens in `globals.css` (`--primary`, `--border`, …) reference the palette; components use the semantic tokens or Tailwind classes, never raw colour values.
