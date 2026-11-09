@@ -6,8 +6,8 @@ import "./globals.css";
 const HTML_CLASS_NAME = `${geistSans.variable} ${geistMono.variable} h-full antialiased`;
 
 export const metadata: Metadata = {
-  title: messages.metadata.title,
-  description: messages.metadata.description,
+  title: messages.RootLayout.title,
+  description: messages.RootLayout.description,
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

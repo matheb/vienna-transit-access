@@ -33,21 +33,21 @@ export default function ControlsPanel({ filterParams, onFilterParamChange }: Con
 
   return (
     <Card>
-      <CardHeader><CardTitle>{messages.home.parametersTitle}</CardTitle></CardHeader>
+      <CardHeader><CardTitle>{messages.ControlsPanel.title}</CardTitle></CardHeader>
       <CardContent className="space-y-5">
-        <OptionToggleGroup options={DAY_TYPES} labels={messages.dayTypes} value={[filterParams.day]} onValueChange={handleDayChange} />
-        <OptionToggleGroup options={TIME_BANDS} labels={messages.timeBands} value={[filterParams.band]} onValueChange={handleTimeBandChange} />
-        <OptionToggleGroup multiple options={SELECTABLE_MODES} labels={messages.modes} value={filterParams.modes} onValueChange={handleModesChange} />
+        <OptionToggleGroup options={DAY_TYPES} labels={messages.ControlsPanel.dayToggle.options} value={[filterParams.day]} onValueChange={handleDayChange} />
+        <OptionToggleGroup options={TIME_BANDS} labels={messages.ControlsPanel.timeBandToggle.options} value={[filterParams.band]} onValueChange={handleTimeBandChange} />
+        <OptionToggleGroup multiple options={SELECTABLE_MODES} labels={messages.ControlsPanel.modeToggle.options} value={filterParams.modes} onValueChange={handleModesChange} />
         <LabeledSlider
-          label={messages.home.minDeparturesLabel}
+          label={messages.ControlsPanel.minDeparturesSlider.label}
           value={filterParams.minDeparturesPerHour}
           range={MIN_DEPARTURES_SLIDER}
           onValueChange={handleMinDeparturesChange}
         />
         <LabeledSlider
-          label={messages.home.radiusLabel}
+          label={messages.ControlsPanel.radiusSlider.label}
           value={filterParams.radiusMeters}
-          unit={messages.home.radiusUnit}
+          unit={messages.ControlsPanel.radiusSlider.unit}
           range={RADIUS_SLIDER}
           onValueChange={handleRadiusChange}
         />
