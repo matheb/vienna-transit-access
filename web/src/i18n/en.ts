@@ -23,6 +23,10 @@ export const messages = {
       unit: "km²",
       shareSuffix: "% of Vienna, approx.",
     },
+    stopsStatus: {
+      loading: "Loading stops…",
+      error: "Could not load stops. Please reload the page.",
+    },
   },
   dayTypes: {
     weekday: "weekday",

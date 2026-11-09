@@ -22,9 +22,25 @@ Rules for agents and humans changing code in `web/`. Some target locations (e.g.
 - Data fetching lives in `src/services/` (e.g. `stopsService.ts`), not in components.
 - All user-facing text lives in `src/i18n/en.ts` as a next-intl-shaped `messages` object (we plan to add a localization package).
 - Pure geo logic lives in `src/lib/geo/` and is unit-tested; UI lives in `src/components/`.
-- Constants such as fonts and class strings go outside components (fonts in `src/app/fonts.ts`).
+- Constants such as fonts and class strings go outside components, so component files stay small (fonts in `src/app/fonts.ts`, other constants in `src/constants/<area>.ts`, e.g. `src/constants/home.ts`).
+- Types that other files can reuse go outside components, next to the module that owns the concept (`StopsLoadStatus` in `stopsService.ts`). Reuse an existing type before adding a new type or constant for the same values.
 - Extract repeated Tailwind class strings or JSX blocks into small components in `src/components/`.
+
+## React & TypeScript
+- Do not define functions inside `useEffect`. Keep the effect to one call to a helper outside the component that returns its cleanup: `useEffect(() => startStopsLoad(setAllStops, setLoadStatus), [])`.
+- Async work started from an effect must ignore results that arrive after cleanup (unmount, React Strict Mode).
+- Fixed sets of app-state values are TypeScript enums, used through their members (`StopsLoadStatus.ready`), not bare strings. Data-contract values from `stops.geojson` keep their `as const` arrays and union types (`DAY_TYPES`, `DayType`).
+- Use `??` for a null/undefined fallback. Use a ternary when the condition is a boolean, because `??` would never fall through.
 
 ## Styles & colours
 - Primitive colours are defined once in `src/styles/palette.css` (`--palette-*`). Semantic tokens in `globals.css` (`--primary`, `--border`, …) reference the palette; components use the semantic tokens or Tailwind classes, never raw colour values.
 - MapLibre cannot read CSS variables: map colours come from `src/styles/mapColors.ts`, which mirrors `palette.css` (keep the two in sync).
+
+## Testing
+- Vitest + React Testing Library. Tests sit next to the code as `name.test.ts` (logic, node environment) or `Name.test.tsx` (components). Shared helpers live in `src/test/`.
+- Component tests start with `// @vitest-environment jsdom` and import `@/test/setupDom`; node tests load no DOM code.
+- Mock `TransitMap` (no WebGL) and `fetchStops` (no network), and assert on the props the map mock received. When mocking `stopsService`, keep its real exports with `importOriginal`, because `StopsLoadStatus` is a runtime enum. Keep pure logic in `src/lib/geo/` real.
+- Query by role and accessible label; use `getByText` only for plain text with no role. Never query by CSS class; no snapshot tests.
+- Find sliders with `getByLabelText`: Base UI keeps the thumb `visibility: hidden` in jsdom (no layout), which hides it from `getByRole`.
+- Check that a test for a guard or edge case fails when that code is removed. A successful `setState` after unmount is invisible at page level, so test it on the helper directly.
+- Do not test generated files in `src/components/ui/`.
