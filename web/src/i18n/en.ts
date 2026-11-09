@@ -39,7 +39,7 @@ export const messages = {
       label: "Min. departures/hour:",
     },
     radiusSlider: {
-      label: "Walking radius:",
+      label: "Walking radius: ",
       unit: "m",
     },
   },
@@ -58,4 +58,6 @@ export const messages = {
     loading: "Loading stops…",
     error: "Could not load stops. Please reload the page.",
   },
+
+
 } as const;
