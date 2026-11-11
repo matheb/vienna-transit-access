@@ -8,3 +8,4 @@ Rules
 - Don't read/commit GTFS raw data or node_modules; don't open stops.geojson (large).
 - Windows; shell is PowerShell.
 See pipeline/CLAUDE.md and web/CLAUDE.md.
+Planned work and priorities: docs/ROADMAP.md
