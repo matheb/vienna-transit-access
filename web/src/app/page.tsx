@@ -2,6 +2,7 @@
 import dynamic from "next/dynamic";
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import ControlsPanel from "@/components/ControlsPanel";
+import DataAttribution from "@/components/DataAttribution";
 import ResultsCard from "@/components/ResultsCard";
 import { DEFAULT_FILTER_PARAMS } from "@/constants/home";
 import { filterStops, getCoverage, type FilterParams, type Stop } from "@/lib/geo/coverage";
@@ -40,6 +41,7 @@ export default function HomePage() {
           totalStopCount={allStops.length}
           coverage={coverage}
         />
+        <DataAttribution />
       </aside>
       <section className="h-[60vh] flex-1 md:h-auto">
         <TransitMap stops={{ type: "FeatureCollection", features: qualifyingStops }} area={coverage.polygon} />

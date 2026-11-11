@@ -58,4 +58,10 @@ export const messages = {
     loading: "Loading stops…",
     error: "Could not load stops. Please reload the page.",
   },
+  DataAttribution: {
+    // TODO(i18n): split around the link; turn into ICU rich text (<link>…</link>) once a localization package is added.
+    prefix: "Timetable data: Wiener Linien (GTFS). Datenquelle: Stadt Wien –",
+    link: "data.wien.gv.at",
+    suffix: ", CC BY",
+  },
 } as const;
