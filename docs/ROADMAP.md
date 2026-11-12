@@ -10,9 +10,9 @@ Usage analytics and error tracking, privacy-friendly; tool choice decided after 
 
 ### End-to-end testing
 Playwright as a third CI job with read-only permissions, testing the built app via `npm run start`.
-- Status: not started
+- Status: done (smoke test). `web/e2e/home.spec.ts` runs in Chromium against the production build, locally with `npm run test:e2e` and in the CI job `e2e`.
 - Why: unit and component tests mock the map and data, so only an end-to-end test proves the real page loads and responds.
-- First step: write one Playwright test that loads the page, waits for the results card and changes a slider; check the package in the registry before installing.
+- Next step: add the axe scan from Accessibility to this test; add an HTML report upload in CI only if failures are hard to read from the log.
 
 ### Accessibility
 Keyboard use, labels, contrast, and axe checks inside the Playwright tests.

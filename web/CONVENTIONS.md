@@ -58,3 +58,13 @@ Examples:
 - Find sliders with `getByLabelText`: Base UI keeps the thumb `visibility: hidden` in jsdom (no layout), which hides it from `getByRole`.
 - Check that a test for a guard or edge case fails when that code is removed. A successful `setState` after unmount is invisible at page level, so test it on the helper directly.
 - Do not test generated files in `src/components/ui/`.
+
+### End-to-end tests (Playwright)
+- E2E tests live in `e2e/` as `name.spec.ts`, outside `src/`, so `npm test` (Vitest) does not pick them up. Config: `playwright.config.ts`. Chromium only.
+- Run them with `npm run test:e2e`. It builds the app and starts it with `next start` on port 3100 (never the dev server). It is separate from the four checks.
+- One-time setup per machine: `npx --no playwright install --only-shell chromium` downloads the headless Chromium shell (about 120 MB) to `%USERPROFILE%\AppData\Local\ms-playwright\`, outside the repo. Re-run it after upgrading `@playwright/test`.
+- Stub every CARTO request with `page.route` (empty style, `application/json`, `access-control-allow-origin: *`), so tests never depend on CARTO. Assert on our own data and controls, never on map pixels.
+- Same query rules as above: role and accessible label, no snapshots, no CSS selectors. No fixed sleeps: use web-first `expect` assertions, and hold a request with `page.route` to test a loading state.
+- Expected texts are literals in the spec, not imported from `src/i18n/en.ts`, so a changed label fails the test.
+- Page console errors are printed to the run output without failing the test; uncaught page errors fail it.
+- Check that a new e2e assertion fails when the behaviour it covers is broken (for example, change a label temporarily), then revert.
