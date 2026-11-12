@@ -1,0 +1,66 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Set-Location *)",
+      "PowerShell(npm test)",
+      "PowerShell(npm run typecheck)",
+      "PowerShell(npm run lint)",
+      "PowerShell(npm run build)",
+      "PowerShell(.venv\\Scripts\\python -m pytest *)",
+      "PowerShell(git status *)",
+      "PowerShell(git diff *)",
+      "PowerShell(git log *)"
+    ],
+    "ask": [
+      "Edit(/.claude/**)",
+      "PowerShell(npm install *)",
+      "PowerShell(npm i *)",
+      "PowerShell(npm ci *)",
+      "PowerShell(npx *)",
+      "PowerShell(pip install *)",
+      "PowerShell(.venv\\Scripts\\python -m pip *)",
+      "PowerShell(winget *)",
+      "PowerShell(Remove-Item *)",
+      "PowerShell(Invoke-WebRequest *)",
+      "PowerShell(Invoke-RestMethod *)",
+      "PowerShell(curl.exe *)"
+    ],
+    "deny": [
+      "Bash",
+      "PowerShell(git push *)",
+      "PowerShell(git commit *)",
+      "PowerShell(git * --force*)",
+      "PowerShell(git reset --hard*)",
+      "PowerShell(git clean *)",
+      "PowerShell(git * --output*)",
+      "PowerShell(Remove-Item *-r*)",
+      "PowerShell(* -Force*)",
+      "PowerShell(Invoke-Expression *)",
+      "PowerShell(powershell *-Command*)",
+      "PowerShell(powershell *-EncodedCommand*)",
+      "PowerShell(pwsh *)",
+      "PowerShell(cmd *)",
+      "PowerShell(python -c *)",
+      "PowerShell(node -e *)",
+      "Read(.env)",
+      "Read(.env.*)",
+      "Read(~/.ssh/**)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe",
+            "args": ["-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File", "${CLAUDE_PROJECT_DIR}/.claude/hooks/limit-command-length.ps1"],
+            "timeout": 10,
+            "onFailure": "block"
+          }
+        ]
+      }
+    ]
+  }
+}
