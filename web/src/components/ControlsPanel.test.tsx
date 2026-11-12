@@ -28,6 +28,15 @@ async function pressArrowRightOn(slider: HTMLElement) {
   await userEvent.keyboard("{ArrowRight}");
 }
 
+describe("toggle groups", () => {
+  it("names each group for screen readers", () => {
+    renderControlsPanel();
+    expect(screen.getByRole("group", { name: "Day type" })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Time of day" })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Transport modes" })).toBeInTheDocument();
+  });
+});
+
 describe("day toggles", () => {
   it("shows the three days with the current one pressed", () => {
     renderControlsPanel();

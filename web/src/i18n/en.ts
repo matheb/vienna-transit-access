@@ -12,6 +12,7 @@ export const messages = {
   ControlsPanel: {
     title: "Parameters",
     dayToggle: {
+      label: "Day type",
       options: {
         weekday: "weekday",
         saturday: "saturday",
@@ -19,6 +20,7 @@ export const messages = {
       } satisfies Record<DayType, string>,
     },
     timeBandToggle: {
+      label: "Time of day",
       options: {
         am: "am",
         midday: "midday",
@@ -27,6 +29,7 @@ export const messages = {
       } satisfies Record<TimeBand, string>,
     },
     modeToggle: {
+      label: "Transport modes",
       options: {
         tram: "tram",
         metro: "metro",
