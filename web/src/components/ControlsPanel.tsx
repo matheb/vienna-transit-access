@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import LabeledSlider from "@/components/LabeledSlider";
 import OptionToggleGroup from "@/components/OptionToggleGroup";
-import { MIN_DEPARTURES_SLIDER, RADIUS_SLIDER } from "@/constants/home";
+import { MIN_DEPARTURES_SLIDER, RADIUS_SLIDER, RADIUS_VALUE_FORMAT } from "@/constants/home";
 import {
   DAY_TYPES, SELECTABLE_MODES, TIME_BANDS,
   type DayType, type FilterParams, type Mode, type TimeBand,
@@ -49,6 +49,7 @@ export default function ControlsPanel({ filterParams, onFilterParamChange }: Con
           value={filterParams.radiusMeters}
           unit={messages.ControlsPanel.radiusSlider.unit}
           range={RADIUS_SLIDER}
+          valueFormat={RADIUS_VALUE_FORMAT}
           onValueChange={handleRadiusChange}
         />
       </CardContent>

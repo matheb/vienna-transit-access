@@ -120,6 +120,13 @@ describe("minimum departures slider", () => {
 });
 
 describe("radius slider", () => {
+  it("is named without its value and speaks the value with its unit", () => {
+    renderControlsPanel();
+    const slider = screen.getByLabelText(/walking radius/i);
+    expect(slider).toHaveAccessibleName("Walking radius:");
+    expect(slider).toHaveAttribute("aria-valuetext", "400 m");
+  });
+
   it("is labelled and shows its value, unit and range", () => {
     renderControlsPanel();
     const slider = screen.getByLabelText(/walking radius/i);
