@@ -133,9 +133,11 @@
   }
 }
 
-/* Base UI moves keyboard focus to a hidden <input type="range"> inside the slider thumb,
+/* Solid focus ring for the controls; the shadcn default (--ring at 50%) is below 3:1 contrast.
+   Base UI moves keyboard focus to a hidden <input type="range"> inside the slider thumb,
    so the thumb's own focus-visible ring never applies. Draw the ring when the thumb contains the focused input.
    Unlayered on purpose, so it beats Tailwind's layered utilities. */
-[data-slot="slider-thumb"]:has(:focus-visible) {
+[data-slot="slider-thumb"]:has(:focus-visible),
+[data-slot="toggle-group-item"]:focus-visible {
   box-shadow: 0 0 0 3px var(--focus-ring);
 }
