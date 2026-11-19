@@ -17,6 +17,9 @@ export const MODE_TOGGLE_NAMES = ["tram", "metro", "rail", "bus"];
 // axe rule tags: WCAG 2.0 and 2.1, levels A and AA.
 export const AXE_WCAG_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"];
 
+// Minimum contrast of a focus indicator against what it is drawn on (WCAG 1.4.11 non-text contrast).
+export const MIN_FOCUS_INDICATOR_CONTRAST = 3;
+
 // Request URL patterns used by the stubs.
 export const STOPS_URL_PATTERN = "**/data/stops.geojson";
 export const CARTO_URL_PATTERN = /^https:\/\/([a-z0-9-]+\.)*cartocdn\.com\//;
