@@ -13,12 +13,17 @@ export const RADIUS_VALUE_TEXT_PATTERN = /^\d+ m$/;
 export const DAY_TOGGLE_NAMES = ["weekday", "saturday", "sunday"];
 export const TIME_BAND_TOGGLE_NAMES = ["am", "midday", "pm", "evening"];
 export const MODE_TOGGLE_NAMES = ["tram", "metro", "rail", "bus"];
+export const MAP_REGION_NAME = "Map of qualifying stops and covered area";
 
 // axe rule tags: WCAG 2.0 and 2.1, levels A and AA.
 export const AXE_WCAG_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"];
 
 // Minimum contrast of a focus indicator against what it is drawn on (WCAG 1.4.11 non-text contrast).
 export const MIN_FOCUS_INDICATOR_CONTRAST = 3;
+
+// Phone viewport (390 x 844 CSS px) and the smallest share of its height the map must get there.
+export const MOBILE_VIEWPORT = { width: 390, height: 844 };
+export const MIN_MAP_VIEWPORT_SHARE = 0.5;
 
 // Request URL patterns used by the stubs.
 export const STOPS_URL_PATTERN = "**/data/stops.geojson";

@@ -1,6 +1,6 @@
 import type { Page } from "@playwright/test";
 import {
-  ATTRIBUTION_LINK_NAME, COVERED_AREA_PATTERN, MIN_DEPARTURES_SLIDER_NAME,
+  ATTRIBUTION_LINK_NAME, COVERED_AREA_PATTERN, MAP_REGION_NAME, MIN_DEPARTURES_SLIDER_NAME,
   RADIUS_SLIDER_NAME, STOPS_SUMMARY_PATTERN,
 } from "./constants";
 
@@ -33,4 +33,8 @@ export function getRadiusSlider(page: Page) {
 
 export function getAttributionLink(page: Page) {
   return page.getByRole("link", { name: ATTRIBUTION_LINK_NAME });
+}
+
+export function getMapRegion(page: Page) {
+  return page.getByRole("region", { name: MAP_REGION_NAME });
 }
