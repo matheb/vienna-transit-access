@@ -141,3 +141,10 @@
 [data-slot="toggle-group-item"]:focus-visible {
   box-shadow: 0 0 0 3px var(--focus-ring);
 }
+
+/* Solid focus ring for links; the global outline-ring/50 default is below 3:1 contrast.
+   Unlayered on purpose, like the focus rules above. */
+a:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
