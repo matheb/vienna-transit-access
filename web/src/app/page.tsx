@@ -43,7 +43,7 @@ export default function HomePage() {
         />
         <DataAttribution />
       </aside>
-      <section className="h-[60vh] flex-1 md:h-auto">
+      <section aria-label={messages.HomePage.mapRegionLabel} className="h-[60vh] flex-1 md:h-auto">
         <TransitMap stops={{ type: "FeatureCollection", features: qualifyingStops }} area={coverage.polygon} />
       </section>
     </main>

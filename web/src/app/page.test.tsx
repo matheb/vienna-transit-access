@@ -114,6 +114,16 @@ describe("while the stops are loading", () => {
   });
 });
 
+describe("map region", () => {
+  it("is a region named for the map, so screen readers can find it", async () => {
+    fetchStopsMock.mockReturnValue(new Promise<Stop[]>(() => {}));
+    render(<Home />);
+    await waitForMapToRender();
+
+    expect(screen.getByRole("region", { name: "Map of qualifying stops and covered area" })).toBeInTheDocument();
+  });
+});
+
 describe("after the stops load", () => {
   it("removes the loading text, shows the counts and gives the map the qualifying stops and an area", async () => {
     await renderLoadedHome();
