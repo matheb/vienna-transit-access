@@ -8,6 +8,7 @@ export const messages = {
   },
   HomePage: {
     title: "Vienna transit accessibility",
+    mapRegionLabel: "Map of qualifying stops and covered area",
   },
   ControlsPanel: {
     title: "Parameters",

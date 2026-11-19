@@ -31,8 +31,8 @@ export default function HomePage() {
     setFilterParams((previous) => ({ ...previous, [key]: value }));
 
   return (
-    <main className="flex h-screen flex-col md:flex-row">
-      <aside className="w-full space-y-4 overflow-y-auto p-4 md:w-96">
+    <main className="flex h-dvh flex-col md:h-screen md:flex-row">
+      <aside className="min-h-0 w-full flex-1 space-y-4 overflow-y-auto p-4 md:w-96 md:flex-initial">
         <h1 className="text-xl font-semibold">{messages.HomePage.title}</h1>
         <ControlsPanel filterParams={filterParams} onFilterParamChange={updateFilterParam} />
         <ResultsCard
@@ -43,7 +43,7 @@ export default function HomePage() {
         />
         <DataAttribution />
       </aside>
-      <section className="h-[60vh] flex-1 md:h-auto">
+      <section aria-label={messages.HomePage.mapRegionLabel} className="order-first h-[55dvh] shrink-0 md:order-none md:h-auto md:flex-1">
         <TransitMap stops={{ type: "FeatureCollection", features: qualifyingStops }} area={coverage.polygon} />
       </section>
     </main>

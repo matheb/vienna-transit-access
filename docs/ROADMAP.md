@@ -18,7 +18,7 @@ Playwright as a third CI job with read-only permissions, testing the built app v
 Keyboard use, labels, contrast, and axe checks inside the Playwright tests.
 - Status: automated checks done in `web/e2e/accessibility.spec.ts` (CI job `e2e`): axe finds no WCAG 2.0/2.1 level A or AA violations; Tab order through the toggle groups, both sliders and the data link; arrow keys, Home and End inside each toggle group; Space and Enter on toggles; arrow keys on both sliders; toggle-group names; slider names without the value, and the radius spoken with its unit; every focus indicator at least 3:1 in the light and the dark theme (measured 4.74:1 light, 6.94:1 and 7.66:1 dark). This is not a claim of full WCAG conformance.
 - Why: the controls and results must work for keyboard and screen-reader users and stay readable.
-- Next step (manual checks): a screen-reader pass; focus order including the map controls; contrast of the map attribution box in the dark theme (its background is always light); a text label for the map canvas.
+- Next step (manual checks): a screen-reader pass; focus order including the map controls; contrast of the map attribution box in the dark theme (its background is always light); a text alternative for the map canvas (the map region is labelled "Map of qualifying stops and covered area"; the canvas inside it has none yet).
 
 ### Internationalization
 Messages are already organised by component in `web/src/i18n/en.ts`; German is the first translation; library choice open.
@@ -78,3 +78,15 @@ The "rail" mode comes from GTFS route type 2 or 1xx; the Wiener Linien feed prob
 - Status: not started (optional)
 - Why: stay on the current patch release without mixing it into feature work.
 - First step: the same steps as for 16.4.5: exact-version install with `--ignore-scripts` and `--before`, review the 12 lockfile entries, then lint, typecheck, test, build and test:e2e.
+
+### Pinned results strip on phones (optional)
+On a phone the results sit below the controls, so seeing them after a change needs scrolling in the panel.
+- Status: drafted, not adopted. A `sticky bottom-0` strip with `scroll-pb-32` on the panel and a focus-not-obscured e2e test was drafted, but the strip takes about 30% of the panel.
+- Why: the map already shows the effect of a change; the numbers are only worth pinning if people miss them.
+- First step: try it only if people miss the results; start from the drafted approach (sticky strip, scroll padding, a test that no focused control is covered).
+
+### Manual phone checks
+The phone layout is checked automatically at 390x844 in `web/e2e/mobile.spec.ts`; one real phone has been checked by hand.
+- Status: in progress (one real phone checked)
+- Why: the e2e test uses Chromium at one fixed size, without real browser bars, touch scrolling or the user's text size.
+- Next step: small phones in landscape (under 768 px wide the phone layout applies, so the map is about 200 px tall); iOS Safari and Android Chrome with the browser bars shown and hidden; text zoom.

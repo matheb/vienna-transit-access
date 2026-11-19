@@ -24,6 +24,9 @@ A stop qualifies when its departures per hour for the selected day type and time
 at least one selected mode. The results card shows how many stops qualify and the covered area in km² with its
 approximate share of Vienna. The map shows the qualifying stops and the covered area.
 
+On screens narrower than 768 px the map is on top at 55 % of the screen height and the controls scroll below it; from
+768 px the controls and the map are side by side.
+
 ## How it works
 
 1. **Pipeline** (`pipeline/compute_stops.py`, Python and pandas) reads the Wiener Linien GTFS feed and writes
@@ -98,6 +101,9 @@ Web, in `web/`:
 | `npm test` | Unit and component tests (Vitest) |
 | `npm run test:e2e` | End-to-end and accessibility tests (Playwright, Chromium) against a production build on port 3100 |
 
+`web/e2e/mobile.spec.ts` runs at a 390x844 viewport and checks that the map gets at least half of the screen height,
+that the page does not scroll sideways, and that axe finds no WCAG 2.0 or 2.1 level A or AA violations.
+
 Before the first e2e run, install the browser: `npx playwright install chromium`.
 
 CI (`.github/workflows/ci.yml`) runs on pull requests and pushes to `main`, in three jobs:
@@ -119,12 +125,15 @@ Automated checks (`web/e2e/accessibility.spec.ts`, run in CI):
 - Every Tab stop shows a focus indicator with at least 3:1 contrast against its background, in the light and the dark
   theme. The dark theme is tested by adding the `dark` class; the app has no theme switch yet.
 
+On phones the map is shown first but comes last in the Tab order, after the data link. The map region has a name
+("Map of qualifying stops and covered area"), but the map canvas inside it has no text alternative yet.
+
 Still open (manual checks):
 
 - A screen-reader pass.
 - Focus order including the map controls.
 - Contrast of the map attribution box in the dark theme.
-- A text label for the map canvas.
+- A text alternative for the map canvas (the region around it is named).
 
 Automated tools find only part of all accessibility problems, so this is not a claim of full WCAG conformance.
 
