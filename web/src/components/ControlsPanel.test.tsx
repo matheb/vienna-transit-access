@@ -28,6 +28,15 @@ async function pressArrowRightOn(slider: HTMLElement) {
   await userEvent.keyboard("{ArrowRight}");
 }
 
+describe("toggle groups", () => {
+  it("names each group for screen readers", () => {
+    renderControlsPanel();
+    expect(screen.getByRole("group", { name: "Day type" })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Time of day" })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Transport modes" })).toBeInTheDocument();
+  });
+});
+
 describe("day toggles", () => {
   it("shows the three days with the current one pressed", () => {
     renderControlsPanel();
@@ -97,7 +106,7 @@ describe("minimum departures slider", () => {
   it("is labelled and shows its value and range", () => {
     renderControlsPanel();
     const slider = screen.getByLabelText(/min\. departures/i);
-    expect(screen.getByText("Min. departures/hour: 4")).toBeInTheDocument();
+    expect(slider.closest("label")).toHaveTextContent("Min. departures/hour: 4");
     expect(slider).toHaveValue("4");
     expect(slider).toHaveAttribute("min", "0");
     expect(slider).toHaveAttribute("max", "20");
@@ -111,10 +120,18 @@ describe("minimum departures slider", () => {
 });
 
 describe("radius slider", () => {
+  it("is named without its value and speaks the value with its unit", () => {
+    renderControlsPanel();
+    const slider = screen.getByLabelText(/walking radius/i);
+    // jsdom can't compute the name (the thumb is visibility:hidden without layout); e2e checks it in a real browser.
+    expect(screen.getByText("400 m")).toHaveAttribute("aria-hidden", "true");
+    expect(slider).toHaveAttribute("aria-valuetext", "400 m");
+  });
+
   it("is labelled and shows its value, unit and range", () => {
     renderControlsPanel();
     const slider = screen.getByLabelText(/walking radius/i);
-    expect(screen.getByText("Walking radius: 400 m")).toBeInTheDocument();
+    expect(slider.closest("label")).toHaveTextContent("Walking radius: 400 m");
     expect(slider).toHaveValue("400");
     expect(slider).toHaveAttribute("min", "100");
     expect(slider).toHaveAttribute("max", "800");

@@ -63,8 +63,18 @@ Examples:
 - E2E tests live in `e2e/` as `name.spec.ts`, outside `src/`, so `npm test` (Vitest) does not pick them up. Config: `playwright.config.ts`. Chromium only.
 - Run them with `npm run test:e2e`. It builds the app and starts it with `next start` on port 3100 (never the dev server). It is separate from the four checks.
 - One-time setup per machine: `npx --no playwright install --only-shell chromium` downloads the headless Chromium shell (about 120 MB) to `%USERPROFILE%\AppData\Local\ms-playwright\`, outside the repo. Re-run it after upgrading `@playwright/test`.
-- Stub every CARTO request with `page.route` (empty style, `application/json`, `access-control-allow-origin: *`), so tests never depend on CARTO. Assert on our own data and controls, never on map pixels.
-- Same query rules as above: role and accessible label, no snapshots, no CSS selectors. No fixed sleeps: use web-first `expect` assertions, and hold a request with `page.route` to test a loading state.
-- Expected texts are literals in the spec, not imported from `src/i18n/en.ts`, so a changed label fails the test.
+- Structure (keep it lean):
+  - `e2e/constants.ts`: expected user-visible texts and name patterns as literals, URL patterns, timeouts.
+  - `e2e/stubs.ts`: request stubs (`stubCartoRequests`, `holdStopsRequest`).
+  - `e2e/fixtures.ts`: exports `test` and `expect`. Its automatic fixture stubs CARTO, prints console errors and fails the test on any uncaught page error.
+  - `e2e/<page>Page.ts` (e.g. `homePage.ts`): small functions returning locators, by role and accessible label.
+  - The specs.
+- Specs import `test` and `expect` only from `./fixtures`, never from `@playwright/test`.
+- Assertions stay in the specs; page files only return locators.
+- No imports from `src/`: expected texts are literals in `e2e/constants.ts`, not taken from `src/i18n/en.ts`, so a changed label fails the test.
+- No page-object classes or class hierarchy yet; plain functions until a second page needs more.
+- CARTO is always stubbed (empty style, `application/json`, `access-control-allow-origin: *`), so tests never depend on CARTO. Assert on our own data and controls, never on map pixels.
+- Same query rules as above: role and accessible label, no snapshots, no CSS selectors. No fixed sleeps: use web-first `expect` assertions, and hold a request with `holdStopsRequest` to test a loading state.
 - Page console errors are printed to the run output without failing the test; uncaught page errors fail it.
+- Accessibility: `accessibility.spec.ts` runs axe with the tags in `AXE_WCAG_TAGS` (WCAG 2.0/2.1 A and AA) on the fully loaded page and fails on any violation. Never disable rules or exclude elements to make it pass; an exclusion needs explicit agreement and a comment that says what and why.
 - Check that a new e2e assertion fails when the behaviour it covers is broken (for example, change a label temporarily), then revert.
