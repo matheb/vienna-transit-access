@@ -12,18 +12,22 @@ interface LabeledSliderProps {
   value: number;
   unit?: string;
   range: SliderRange;
+  valueFormat?: Intl.NumberFormatOptions;
   onValueChange: (value: number) => void;
 }
 
 // Renders "<label> <value> [unit]" above a single-thumb slider.
-export default function LabeledSlider({ label, value, unit, range, onValueChange }: LabeledSliderProps) {
+// The visible value is aria-hidden so the slider's accessible name is only the label; screen readers read the value
+// from the slider itself (aria-valuenow, or aria-valuetext formatted with valueFormat).
+export default function LabeledSlider({ label, value, unit, range, valueFormat, onValueChange }: LabeledSliderProps) {
   function handleSliderChange(sliderValue: number | readonly number[]) {
     onValueChange(getSliderValue(sliderValue));
   }
 
   return (
-    <label className="block text-sm">{label} {value}{unit !== undefined && ` ${unit}`}
-      <Slider {...range} value={[value]} onValueChange={handleSliderChange} />
+    <label className="block text-sm">{label}{" "}
+      <span aria-hidden="true">{value}{unit !== undefined && ` ${unit}`}</span>
+      <Slider {...range} format={valueFormat} value={[value]} onValueChange={handleSliderChange} />
     </label>
   );
 }

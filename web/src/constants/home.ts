@@ -10,6 +10,8 @@ export const DEFAULT_FILTER_PARAMS: FilterParams = {
 };
 export const MIN_DEPARTURES_SLIDER: SliderRange = { min: 0, max: 20, step: 1 };
 export const RADIUS_SLIDER: SliderRange = { min: 100, max: 800, step: 50 };
+// Spoken value of the radius slider (aria-valuetext), e.g. "400 m".
+export const RADIUS_VALUE_FORMAT: Intl.NumberFormatOptions = { style: "unit", unit: "meter", unitDisplay: "short" };
 
 // While stops are not ready the summary stays mounted but hidden, so the card keeps its height.
 // These values give it the same length, and so the same line wrapping, as a typical first result.
