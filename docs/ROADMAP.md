@@ -50,10 +50,15 @@ Add street-network catchments with a walking-minutes selector next to the existi
 
 ### Hidden placeholder numbers in the server HTML
 The results card is rendered on the server with placeholder values, hidden with `visibility: hidden` so the card keeps its height until the stops load (`LAYOUT_RESERVING_COVERAGE` in `web/src/constants/home.ts`).
-- Status: not started
-- Priority: high
+- Status: done. The server HTML now has no result numbers; `web/e2e/serverHtml.spec.ts` checks the raw HTML without JavaScript, and layout guards (desktop and 390x844) check that nothing below the results card moves when the stops load (card height 96px in every state).
 - Why: the live page's raw HTML shows "0 of 0 stops qualify" and "Covered area: 100.0 km² (25% of Vienna, approx.)", so crawlers and link previews see these numbers as if they were results.
 - First step: keep the reserved height but render no result numbers in the server HTML, and add a test that the server HTML contains none.
+
+### Announce result changes to screen readers
+The results card changes when a control changes, but nothing announces it.
+- Status: not started
+- Why: screen-reader users cannot tell that the numbers changed.
+- First step: try a polite aria-live region around the summary and check that it does not announce on every slider step (debounce), with a unit test and a manual screen-reader pass.
 
 ### Map fallback when WebGL is unavailable
 MapLibre needs WebGL; without it the map cannot render.
