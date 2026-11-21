@@ -50,7 +50,7 @@ Add street-network catchments with a walking-minutes selector next to the existi
 
 ### Hidden placeholder numbers in the server HTML
 The results card is rendered on the server with placeholder values, hidden with `visibility: hidden` so the card keeps its height until the stops load (`LAYOUT_RESERVING_COVERAGE` in `web/src/constants/home.ts`).
-- Status: done. The server HTML now has no result numbers; `web/e2e/serverHtml.spec.ts` checks the raw HTML without JavaScript, and layout guards (desktop and 390x844) check that nothing below the results card moves when the stops load (card height 96px in every state).
+- Status: done. The server HTML now has no result numbers; `web/e2e/serverHtml.spec.ts` checks the raw HTML without JavaScript, and layout guards (desktop and 390x844) check that nothing below the results card moves when the stops load. The results card shows three short lines (stops, covered area, share of Vienna) and is 116px in every state; a layout guard also runs with the fallback font, so the height does not depend on the font.
 - Why: the live page's raw HTML shows "0 of 0 stops qualify" and "Covered area: 100.0 km² (25% of Vienna, approx.)", so crawlers and link previews see these numbers as if they were results.
 - First step: keep the reserved height but render no result numbers in the server HTML, and add a test that the server HTML contains none.
 
