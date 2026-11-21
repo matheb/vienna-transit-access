@@ -20,6 +20,14 @@ function getAreaSummary() {
   return screen.getByText(/Covered area:/);
 }
 
+function queryStopsSummary() {
+  return screen.queryByText(/stops qualify/);
+}
+
+function queryAreaFigure() {
+  return screen.queryByText(/km²/);
+}
+
 describe("when ready", () => {
   it("shows the stop count, the area to one decimal, the whole-number share and approx.", () => {
     renderResultsCard(StopsLoadStatus.ready);
@@ -46,8 +54,8 @@ describe("while loading", () => {
   it("shows the loading status in place of the summary", () => {
     renderResultsCard(StopsLoadStatus.loading);
     expect(screen.getByRole("status")).toHaveTextContent(/^Loading stops…$/);
-    expect(getStopsSummary()).not.toBeVisible();
-    expect(getAreaSummary()).not.toBeVisible();
+    expect(queryStopsSummary()).not.toBeInTheDocument();
+    expect(queryAreaFigure()).not.toBeInTheDocument();
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 });
@@ -56,8 +64,8 @@ describe("after a failure", () => {
   it("shows the error alert in place of the summary", () => {
     renderResultsCard(StopsLoadStatus.error);
     expect(screen.getByRole("alert")).toHaveTextContent(/^Could not load stops\. Please reload the page\.$/);
-    expect(getStopsSummary()).not.toBeVisible();
-    expect(getAreaSummary()).not.toBeVisible();
+    expect(queryStopsSummary()).not.toBeInTheDocument();
+    expect(queryAreaFigure()).not.toBeInTheDocument();
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
   });
 });
