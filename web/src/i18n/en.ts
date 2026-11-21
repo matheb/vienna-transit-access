@@ -38,6 +38,8 @@ export const messages = {
         bus: "bus",
         other: "other",
       } satisfies Record<Mode, string>,
+      // TODO(i18n): followed by the disabled modes' labels; turn into an ICU list ({modes}) once a localization package is added.
+      unavailableHint: "No stops in the timetable data:",
     },
     minDeparturesSlider: {
       label: "Min. departures/hour:",

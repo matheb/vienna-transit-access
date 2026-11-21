@@ -10,10 +10,15 @@ import { messages } from "@/i18n/en";
 
 interface ControlsPanelProps {
   filterParams: FilterParams;
+  availableModes: readonly Mode[];
   onFilterParamChange: <K extends keyof FilterParams>(key: K, value: FilterParams[K]) => void;
 }
 
-export default function ControlsPanel({ filterParams, onFilterParamChange }: ControlsPanelProps) {
+export default function ControlsPanel({ filterParams, availableModes, onFilterParamChange }: ControlsPanelProps) {
+  // A mode without stops is shown disabled and never pressed, even if the filter still contains it.
+  const pressedModes = filterParams.modes.filter((mode) => availableModes.includes(mode));
+  const unavailableModes = SELECTABLE_MODES.filter((mode) => !availableModes.includes(mode));
+
   // Single-select toggle groups report [] when the active item is clicked again; keep the current value then.
   function handleDayChange(value: string[]) {
     if (value[0]) onFilterParamChange("day", value[0] as DayType);
@@ -37,7 +42,16 @@ export default function ControlsPanel({ filterParams, onFilterParamChange }: Con
       <CardContent className="space-y-5">
         <OptionToggleGroup groupLabel={messages.ControlsPanel.dayToggle.label} options={DAY_TYPES} labels={messages.ControlsPanel.dayToggle.options} value={[filterParams.day]} onValueChange={handleDayChange} />
         <OptionToggleGroup groupLabel={messages.ControlsPanel.timeBandToggle.label} options={TIME_BANDS} labels={messages.ControlsPanel.timeBandToggle.options} value={[filterParams.band]} onValueChange={handleTimeBandChange} />
-        <OptionToggleGroup multiple groupLabel={messages.ControlsPanel.modeToggle.label} options={SELECTABLE_MODES} labels={messages.ControlsPanel.modeToggle.options} value={filterParams.modes} onValueChange={handleModesChange} />
+        <OptionToggleGroup
+          multiple
+          groupLabel={messages.ControlsPanel.modeToggle.label}
+          options={SELECTABLE_MODES}
+          labels={messages.ControlsPanel.modeToggle.options}
+          value={pressedModes}
+          disabledOptions={unavailableModes}
+          disabledHint={messages.ControlsPanel.modeToggle.unavailableHint}
+          onValueChange={handleModesChange}
+        />
         <LabeledSlider
           label={messages.ControlsPanel.minDeparturesSlider.label}
           value={filterParams.minDeparturesPerHour}

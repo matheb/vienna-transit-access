@@ -5,13 +5,14 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import ControlsPanel from "@/components/ControlsPanel";
 import { DEFAULT_FILTER_PARAMS } from "@/constants/home";
-import type { FilterParams } from "@/lib/geo/coverage";
+import { SELECTABLE_MODES, type FilterParams, type Mode } from "@/lib/geo/coverage";
 
-function renderControlsPanel(filterParamOverrides: Partial<FilterParams> = {}) {
+function renderControlsPanel(filterParamOverrides: Partial<FilterParams> = {}, availableModes: readonly Mode[] = SELECTABLE_MODES) {
   const handleFilterParamChange = vi.fn();
   render(
     <ControlsPanel
       filterParams={{ ...DEFAULT_FILTER_PARAMS, ...filterParamOverrides }}
+      availableModes={availableModes}
       onFilterParamChange={handleFilterParamChange}
     />,
   );
@@ -99,6 +100,26 @@ describe("mode toggles", () => {
     const handleFilterParamChange = renderControlsPanel({ modes: ["bus"] });
     await userEvent.click(getButton("tram"));
     expect(handleFilterParamChange).toHaveBeenCalledExactlyOnceWith("modes", ["bus", "tram"]);
+  });
+
+  it("shows all modes enabled and no hint when every mode has stops", () => {
+    renderControlsPanel();
+    for (const mode of ["tram", "metro", "rail", "bus"]) expect(getButton(mode)).toBeEnabled();
+    expect(screen.queryByText(/No stops in the timetable data/)).not.toBeInTheDocument();
+  });
+
+  it("disables a mode without stops, never shows it pressed, and names it in the hint", () => {
+    renderControlsPanel({}, ["tram", "metro", "bus"]);
+    expect(getButton("rail")).toBeDisabled();
+    expect(getButton("rail")).toHaveAttribute("aria-pressed", "false");
+    expect(getButton("rail")).toHaveAccessibleDescription("No stops in the timetable data: rail");
+    expect(screen.getByText("No stops in the timetable data: rail")).toBeVisible();
+  });
+
+  it("reports the modes without the unavailable one when another mode is clicked", async () => {
+    const handleFilterParamChange = renderControlsPanel({}, ["tram", "metro", "bus"]);
+    await userEvent.click(getButton("tram"));
+    expect(handleFilterParamChange).toHaveBeenCalledExactlyOnceWith("modes", ["metro", "bus"]);
   });
 });
 

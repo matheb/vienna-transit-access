@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { getUnionCoverage } from "../../../scripts/reference/getUnionCoverage.mjs";
-import { SELECTABLE_MODES, filterStops, getCoverage, type FilterParams, type Stop } from "./coverage";
+import { SELECTABLE_MODES, filterStops, getAvailableModes, getCoverage, type FilterParams, type Stop } from "./coverage";
 
 const REAL_STOPS_PATH = path.resolve(__dirname, "../../../public/data/stops.geojson");
 // Largest difference measured with scripts/benchmark-coverage.mjs at 25 m cells was 0.73 %.
@@ -24,6 +24,17 @@ describe("filterStops", () => {
     const stops = [makeStop("a", 16.3, 6), makeStop("b", 16.31, 2), makeStop("c", 16.32, 8, ["rail"])];
     expect(filterStops(stops, filterParams).map((stop) => stop.properties.id)).toEqual(["a"]);
   });
+});
+
+describe("getAvailableModes", () => {
+  it("returns the selectable modes that have stops, in toggle order", () => {
+    const stops = [makeStop("a", 16.3, 6, ["bus"]), makeStop("b", 16.31, 6, ["metro", "tram"])];
+    expect(getAvailableModes(stops)).toEqual(["tram", "metro", "bus"]);
+  });
+  it("never returns other, which is not selectable", () => {
+    expect(getAvailableModes([makeStop("a", 16.3, 6, ["other"])])).toEqual([]);
+  });
+  it("returns nothing without stops", () => expect(getAvailableModes([])).toEqual([]));
 });
 
 describe("getCoverage", () => {

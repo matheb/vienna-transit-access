@@ -44,6 +44,11 @@ export function filterStops(stops: Stop[], params: FilterParams): Stop[] {
   );
 }
 
+// The selectable modes that at least one stop has, in toggle order; the others are shown disabled.
+export function getAvailableModes(stops: Stop[]): Mode[] {
+  return SELECTABLE_MODES.filter((mode) => stops.some((stop) => stop.properties.modes.includes(mode)));
+}
+
 /**
  * Approximate area within radiusMeters of any stop, plus its outline for the map.
  * Both come from one grid in local metres (see coverageGrid.ts): the area counts covered cells and the
