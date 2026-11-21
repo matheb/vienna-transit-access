@@ -57,7 +57,9 @@ export const messages = {
     coveredArea: {
       label: "Covered area:",
       unit: "km²",
-      shareSuffix: "% of Vienna, approx.",
+    },
+    viennaShare: {
+      suffix: "% of Vienna, approx.",
     },
     loading: "Loading stops…",
     error: "Could not load stops. Please reload the page.",

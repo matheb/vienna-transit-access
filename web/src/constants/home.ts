@@ -13,5 +13,5 @@ export const RADIUS_SLIDER: SliderRange = { min: 100, max: 800, step: 50 };
 // Spoken value of the radius slider (aria-valuetext), e.g. "400 m".
 export const RADIUS_VALUE_FORMAT: Intl.NumberFormatOptions = { style: "unit", unit: "meter", unitDisplay: "short" };
 
-// Reserves the two-line summary's height in every state, so nothing below the card moves when the stops load.
-export const RESULTS_MIN_HEIGHT_CLASS = "min-h-[2lh]";
+// Reserves the summary's three short lines (stops, area, share) in every state, so nothing below the card moves when the stops load.
+export const RESULTS_MIN_HEIGHT_CLASS = "min-h-[3lh]";

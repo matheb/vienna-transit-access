@@ -22,8 +22,10 @@ export default function ResultsCard({ loadStatus, qualifyingStopCount, totalStop
                 <b>{qualifyingStopCount}</b> {messages.ResultsCard.stopsSummary.of} {totalStopCount} {messages.ResultsCard.stopsSummary.suffix}
               </p>
               <p>
-                {messages.ResultsCard.coveredArea.label} <b>{coverage.areaKm2.toFixed(1)} {messages.ResultsCard.coveredArea.unit}</b>{" "}
-                ({(coverage.viennaShare * 100).toFixed(0)}{messages.ResultsCard.coveredArea.shareSuffix})
+                {messages.ResultsCard.coveredArea.label} <b>{coverage.areaKm2.toFixed(1)} {messages.ResultsCard.coveredArea.unit}</b>
+              </p>
+              <p>
+                <b>{(coverage.viennaShare * 100).toFixed(0)}</b>{messages.ResultsCard.viennaShare.suffix}
               </p>
             </>
           )}

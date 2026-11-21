@@ -20,6 +20,10 @@ function getAreaSummary() {
   return screen.getByText(/Covered area:/);
 }
 
+function getShareSummary() {
+  return screen.getByText(/of Vienna, approx\./);
+}
+
 function queryStopsSummary() {
   return screen.queryByText(/stops qualify/);
 }
@@ -28,13 +32,19 @@ function queryAreaFigure() {
   return screen.queryByText(/km²/);
 }
 
+function queryShareFigure() {
+  return screen.queryByText(/of Vienna/);
+}
+
 describe("when ready", () => {
   it("shows the stop count, the area to one decimal, the whole-number share and approx.", () => {
     renderResultsCard(StopsLoadStatus.ready);
     expect(getStopsSummary()).toBeVisible();
     expect(getStopsSummary()).toHaveTextContent("2 of 5 stops qualify");
     expect(getAreaSummary()).toBeVisible();
-    expect(getAreaSummary()).toHaveTextContent("Covered area: 12.3 km² (3% of Vienna, approx.)");
+    expect(getAreaSummary()).toHaveTextContent(/^Covered area: 12\.3 km²$/);
+    expect(getShareSummary()).toBeVisible();
+    expect(getShareSummary()).toHaveTextContent(/^3% of Vienna, approx\.$/);
   });
 
   it("shows no status or alert", () => {
@@ -46,7 +56,8 @@ describe("when ready", () => {
   it("renders zero results as 0 and 0.0", () => {
     renderResultsCard(StopsLoadStatus.ready, 0, EMPTY_COVERAGE);
     expect(getStopsSummary()).toHaveTextContent("0 of 5 stops qualify");
-    expect(getAreaSummary()).toHaveTextContent("Covered area: 0.0 km² (0% of Vienna, approx.)");
+    expect(getAreaSummary()).toHaveTextContent(/^Covered area: 0\.0 km²$/);
+    expect(getShareSummary()).toHaveTextContent(/^0% of Vienna, approx\.$/);
   });
 });
 
@@ -56,6 +67,7 @@ describe("while loading", () => {
     expect(screen.getByRole("status")).toHaveTextContent(/^Loading stops…$/);
     expect(queryStopsSummary()).not.toBeInTheDocument();
     expect(queryAreaFigure()).not.toBeInTheDocument();
+    expect(queryShareFigure()).not.toBeInTheDocument();
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 });
@@ -66,6 +78,7 @@ describe("after a failure", () => {
     expect(screen.getByRole("alert")).toHaveTextContent(/^Could not load stops\. Please reload the page\.$/);
     expect(queryStopsSummary()).not.toBeInTheDocument();
     expect(queryAreaFigure()).not.toBeInTheDocument();
+    expect(queryShareFigure()).not.toBeInTheDocument();
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
   });
 });
