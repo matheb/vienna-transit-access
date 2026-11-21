@@ -73,10 +73,12 @@ The "rail" mode comes from GTFS route type 2 or 1xx; the Wiener Linien feed prob
 - First step: count the stops with mode "rail" in `stops.geojson` with a small script (the file is too large to open); if there are none, remove "rail" from `SELECTABLE_MODES` and the toggle labels, and update the tests.
 
 ### npm audit findings
-`npm install` reported 10 moderate vulnerabilities on 2026-11-19 (during the Next.js 16.4.5 upgrade); they are not triaged yet.
-- Status: not started
+`npm install` reported 10 moderate vulnerabilities on 2026-11-19 (during the Next.js 16.4.5 upgrade). All 10 come from one advisory, minimatch GHSA-g3hv-75wg-m249 (denial of service, fixed in minimatch 11.0.1; it needs an attacker-controlled glob pattern). Nothing affected ships to the browser or runs under `next start`.
+- Status: triaged 2026-11-21
 - Why: we need to know whether any affected package ships to the browser or only runs in development.
-- First step: run `npm audit` (read-only), list each affected package with its dependency path, and decide per package.
+- Chain A (6 findings: lint tooling via `eslint-config-next`, `typescript-eslint` 8.72.1): fix with the override `"typescript-eslint": "8.73.0"` from 2026-11-23 (7-day rule; published 2026-11-16), then review the lockfile diff and run lint, typecheck, test, build and test:e2e.
+- Chain B (4 findings: shadcn CLI → `ts-morph` → `minimatch`): accepted; no fix inside shadcn 4.x. Do not run `npm audit fix` (it suggests the downgrade `shadcn@1.0.0`). Recheck when shadcn uses `ts-morph` 28 or newer.
+- Next step: chain A on or after 2026-11-23, following "Dependencies" in `web/CONVENTIONS.md`.
 
 ### Next.js 16.4.6 patch bump
 16.4.5 contains the November 2026 security fixes; 16.4.6 (published 2026-11-09) is a later patch that the security post does not mention.
