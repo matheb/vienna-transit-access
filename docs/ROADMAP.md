@@ -66,11 +66,10 @@ MapLibre needs WebGL; without it the map cannot render.
 - Why: on devices or browsers without WebGL the page should still explain what is missing, and the controls and results should keep working.
 - First step: check what the page does today with WebGL disabled (to verify), then show a short message in place of the map.
 
-### Remove the empty rail toggle
-The "rail" mode comes from GTFS route type 2 or 1xx; the Wiener Linien feed probably has no such routes (to verify).
-- Status: not started
+### Disable transport modes without stops
+The "rail" mode comes from GTFS route type 2 or 1xx; the current `stops.geojson` has no rail stops (and no "other"; counted 2026-11-21).
+- Status: done. Modes with no stops in the loaded data are disabled, not pressed, skipped by the arrow keys, Home and End, and explained by a visible hint ("No stops in the timetable data: rail"). The available modes come from the data, so rail would enable itself if the feed had rail stops. The hint line is always reserved, and the layout guards check that nothing below the controls moves when the stops load. `web/e2e/accessibility.spec.ts` reads the modes from the same data file, so it follows the data too.
 - Why: a toggle that never changes the result is confusing.
-- First step: count the stops with mode "rail" in `stops.geojson` with a small script (the file is too large to open); if there are none, remove "rail" from `SELECTABLE_MODES` and the toggle labels, and update the tests.
 
 ### npm audit findings
 `npm install` reported 10 moderate vulnerabilities on 2026-11-19 (during the Next.js 16.4.5 upgrade). All 10 come from one advisory, minimatch GHSA-g3hv-75wg-m249 (denial of service, fixed in minimatch 11.0.1; it needs an attacker-controlled glob pattern). Nothing affected ships to the browser or runs under `next start`.

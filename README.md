@@ -16,13 +16,16 @@ Built with Next.js, TypeScript, Tailwind CSS, shadcn/ui, MapLibre, Python (panda
 |---|---|---|
 | Day type | weekday, saturday, sunday | weekday |
 | Time of day | am (07–09), midday (11–14), pm (16–19), evening (19–23) | am |
-| Transport modes | tram, metro, rail, bus (several can be selected) | all four |
+| Transport modes | tram, metro, rail, bus (several can be selected) | all with stops |
 | Min. departures/hour | 0–20, step 1 | 4 |
 | Walking radius | 100–800 m, step 50 m | 400 m |
 
 A stop qualifies when its departures per hour for the selected day type and time of day reach the minimum and it serves
 at least one selected mode. The results card shows how many stops qualify and the covered area in km² with its
 approximate share of Vienna. The map shows the qualifying stops and the covered area.
+
+A transport mode with no stops in the data is shown disabled, with a short note under the toggles. In the Wiener Linien
+feed this is rail; it would turn on by itself if the data contained rail stops.
 
 On screens narrower than 768 px the map is on top at 55 % of the screen height and the controls scroll below it; from
 768 px the controls and the map are side by side.
@@ -44,7 +47,7 @@ On screens narrower than 768 px the map is on top at 55 % of the screen height a
 
 ## Limitations
 
-- Wiener Linien only: no ÖBB S-Bahn or regional rail.
+- Wiener Linien only: no ÖBB S-Bahn or regional rail, so the rail toggle is disabled.
 - Distance is a straight line from the station, not a walking route.
 - Stops are filtered by a rectangle, not the city boundary, so some neighbouring towns are included; the share is
   still computed against Vienna's 414.9 km².
