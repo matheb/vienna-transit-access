@@ -4,6 +4,9 @@ export const PAGE_TITLE = "Vienna transit accessibility";
 export const LOADING_TEXT = "Loading stops…";
 export const STOPS_SUMMARY_PATTERN = /^\d+ of \d+ stops qualify$/;
 export const COVERED_AREA_PATTERN = /^Covered area:/;
+// Words that only appear when results are shown; the server HTML must contain neither.
+export const STOPS_SUMMARY_TEXT = "stops qualify";
+export const AREA_UNIT_TEXT = "km²";
 export const MIN_DEPARTURES_SLIDER_NAME = /^Min\. departures\/hour:/;
 export const RADIUS_SLIDER_NAME = /^Walking radius:/;
 export const MODE_TOGGLE_NAME = "bus";
@@ -28,5 +31,7 @@ export const MIN_MAP_VIEWPORT_SHARE = 0.5;
 // Request URL patterns used by the stubs.
 export const STOPS_URL_PATTERN = "**/data/stops.geojson";
 export const CARTO_URL_PATTERN = /^https:\/\/([a-z0-9-]+\.)*cartocdn\.com\//;
+// The self-hosted web font (next/font); blocking it makes the page render with the fallback font.
+export const FONT_URL_PATTERN = "**/_next/static/media/*.woff2";
 
 // Timeouts: playwright.config.ts holds all of them today; an e2e-only timeout would go here.
