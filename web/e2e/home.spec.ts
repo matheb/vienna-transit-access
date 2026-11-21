@@ -1,4 +1,4 @@
-import { ATTRIBUTION_URL, LOADING_TEXT, MODE_TOGGLE_NAME, PAGE_TITLE } from "./constants";
+import { ATTRIBUTION_URL, FONT_URL_PATTERN, LOADING_TEXT, MODE_TOGGLE_NAME, PAGE_TITLE } from "./constants";
 import { expect, test } from "./fixtures";
 import {
   getAttributionLink, getCoveredArea, getLoadingStatus, getRadiusSlider, getStopsSummary, getToggle,
@@ -16,7 +16,8 @@ test("home page loads stops and responds to the controls", async ({ page }) => {
     await page.goto("/");
     await expect(page).toHaveTitle(PAGE_TITLE);
     await expect(getLoadingStatus(page)).toHaveText(LOADING_TEXT);
-    attributionYWhileLoading = (await getAttributionLink(page).boundingBox())?.y;  });
+    attributionYWhileLoading = (await getAttributionLink(page).boundingBox())?.y;
+  });
 
   await test.step("shows the stop count once the stops have loaded", async () => {
     releaseStops();
@@ -26,7 +27,8 @@ test("home page loads stops and responds to the controls", async ({ page }) => {
 
   await test.step("the content below the results card does not move when the stops load", async () => {
     expect(attributionYWhileLoading, "attribution link y while loading").toBeDefined();
-    const attributionYLoaded = (await getAttributionLink(page).boundingBox())?.y;    expect(attributionYLoaded, "attribution link y after load").toBe(attributionYWhileLoading);
+    const attributionYLoaded = (await getAttributionLink(page).boundingBox())?.y;
+    expect(attributionYLoaded, "attribution link y after load").toBe(attributionYWhileLoading);
   });
 
   await test.step("a mode toggle changes the stop count", async () => {
@@ -50,4 +52,21 @@ test("home page loads stops and responds to the controls", async ({ page }) => {
   await test.step("links the data source", async () => {
     await expect(getAttributionLink(page)).toHaveAttribute("href", ATTRIBUTION_URL);
   });
+});
+
+// Text width depends on the font, so CI and local machines can wrap differently. Without the web font the page
+// uses the fallback font, and the results card must still keep its height when the stops load.
+test("with the fallback font, the content below the results card does not move when the stops load", async ({ page }) => {
+  await page.route(FONT_URL_PATTERN, (route) => route.abort());
+  const releaseStops = await holdStopsRequest(page);
+  await page.goto("/");
+  await expect(getLoadingStatus(page)).toHaveText(LOADING_TEXT);
+  const attributionYWhileLoading = (await getAttributionLink(page).boundingBox())?.y;
+  releaseStops();
+  await expect(getLoadingStatus(page)).toBeHidden();
+  await expect(getStopsSummary(page)).toBeVisible();
+  const attributionYLoaded = (await getAttributionLink(page).boundingBox())?.y;
+  expect(attributionYWhileLoading, "attribution link y while loading").toBeDefined();
+  expect(attributionYLoaded, `attribution link y: ${attributionYWhileLoading} while loading, ${attributionYLoaded} after load`)
+    .toBe(attributionYWhileLoading);
 });

@@ -31,5 +31,7 @@ export const MIN_MAP_VIEWPORT_SHARE = 0.5;
 // Request URL patterns used by the stubs.
 export const STOPS_URL_PATTERN = "**/data/stops.geojson";
 export const CARTO_URL_PATTERN = /^https:\/\/([a-z0-9-]+\.)*cartocdn\.com\//;
+// The self-hosted web font (next/font); blocking it makes the page render with the fallback font.
+export const FONT_URL_PATTERN = "**/_next/static/media/*.woff2";
 
 // Timeouts: playwright.config.ts holds all of them today; an e2e-only timeout would go here.

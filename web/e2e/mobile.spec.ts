@@ -14,14 +14,16 @@ test.beforeEach(async ({ page }) => {
   const releaseStops = await holdStopsRequest(page);
   await page.goto("/");
   await expect(getLoadingStatus(page)).toBeVisible();
-  attributionYWhileLoading = (await getAttributionLink(page).boundingBox())?.y;  releaseStops();
+  attributionYWhileLoading = (await getAttributionLink(page).boundingBox())?.y;
+  releaseStops();
   await expect(getLoadingStatus(page)).toBeHidden();
   await expect(getStopsSummary(page)).toBeVisible();
 });
 
 test("the content below the results card does not move when the stops load", async ({ page }) => {
   expect(attributionYWhileLoading, "attribution link y while loading").toBeDefined();
-  const attributionYLoaded = (await getAttributionLink(page).boundingBox())?.y;  expect(attributionYLoaded, "attribution link y after load").toBe(attributionYWhileLoading);
+  const attributionYLoaded = (await getAttributionLink(page).boundingBox())?.y;
+  expect(attributionYLoaded, "attribution link y after load").toBe(attributionYWhileLoading);
 });
 
 test(`the map gets at least ${MIN_MAP_VIEWPORT_SHARE * 100}% of the viewport height`, async ({ page }) => {
