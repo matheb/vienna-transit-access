@@ -10,17 +10,23 @@ test("home page loads stops and responds to the controls", async ({ page }) => {
   const releaseStops = await holdStopsRequest(page);
   const stopsSummary = getStopsSummary(page);
   const coveredArea = getCoveredArea(page);
+  let attributionYWhileLoading: number | undefined;
 
   await test.step("shows the title and the loading state", async () => {
     await page.goto("/");
     await expect(page).toHaveTitle(PAGE_TITLE);
     await expect(getLoadingStatus(page)).toHaveText(LOADING_TEXT);
-  });
+    attributionYWhileLoading = (await getAttributionLink(page).boundingBox())?.y;  });
 
   await test.step("shows the stop count once the stops have loaded", async () => {
     releaseStops();
     await expect(getLoadingStatus(page)).toBeHidden();
     await expect(stopsSummary).toBeVisible();
+  });
+
+  await test.step("the content below the results card does not move when the stops load", async () => {
+    expect(attributionYWhileLoading, "attribution link y while loading").toBeDefined();
+    const attributionYLoaded = (await getAttributionLink(page).boundingBox())?.y;    expect(attributionYLoaded, "attribution link y after load").toBe(attributionYWhileLoading);
   });
 
   await test.step("a mode toggle changes the stop count", async () => {

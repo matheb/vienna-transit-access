@@ -4,6 +4,9 @@ export const PAGE_TITLE = "Vienna transit accessibility";
 export const LOADING_TEXT = "Loading stops…";
 export const STOPS_SUMMARY_PATTERN = /^\d+ of \d+ stops qualify$/;
 export const COVERED_AREA_PATTERN = /^Covered area:/;
+// Words that only appear when results are shown; the server HTML must contain neither.
+export const STOPS_SUMMARY_TEXT = "stops qualify";
+export const AREA_UNIT_TEXT = "km²";
 export const MIN_DEPARTURES_SLIDER_NAME = /^Min\. departures\/hour:/;
 export const RADIUS_SLIDER_NAME = /^Walking radius:/;
 export const MODE_TOGGLE_NAME = "bus";
