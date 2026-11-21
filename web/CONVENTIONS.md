@@ -78,3 +78,11 @@ Examples:
 - Page console errors are printed to the run output without failing the test; uncaught page errors fail it.
 - Accessibility: `accessibility.spec.ts` runs axe with the tags in `AXE_WCAG_TAGS` (WCAG 2.0/2.1 A and AA) on the fully loaded page and fails on any violation. Never disable rules or exclude elements to make it pass; an exclusion needs explicit agreement and a comment that says what and why.
 - Check that a new e2e assertion fails when the behaviour it covers is broken (for example, change a label temporarily), then revert.
+
+## Dependencies
+- New and upgraded packages get exact versions: `--save-exact`, or an exact `overrides` entry in `package.json` for a transitive package. No `^` or `~` in what we add.
+- Before installing, check the version and its publish date with `npm view <package> "time[<version>]"`. The version must be at least 7 days old.
+- Install with `--ignore-scripts` and `--before=<date>`, with the date set 7 days back, so nothing newer than the cooling period can be resolved.
+- Review the lockfile diff: only the expected packages may change.
+- Then run lint, typecheck, test, build and test:e2e.
+- Treat `npm audit` findings by triage: advisory, dependency path, whether it ships to the browser or runs under `next start`, and the fix version. Record the decision in `docs/ROADMAP.md`. Never run `npm audit fix` or `npm audit fix --force`.
