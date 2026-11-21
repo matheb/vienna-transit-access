@@ -2,13 +2,14 @@ import AxeBuilder from "@axe-core/playwright";
 import type { Locator, Page } from "@playwright/test";
 import {
   AXE_WCAG_TAGS, DAY_TOGGLE_NAMES, MIN_FOCUS_INDICATOR_CONTRAST, MODE_TOGGLE_NAMES, RADIUS_VALUE_TEXT_PATTERN,
-  TIME_BAND_TOGGLE_NAMES,
+  TIME_BAND_TOGGLE_NAMES, UNAVAILABLE_MODES_HINT_PREFIX,
 } from "./constants";
 import { expect, test } from "./fixtures";
 import {
   getAttributionLink, getCoveredArea, getLoadingStatus, getMinDeparturesSlider,
   getRadiusSlider, getStopsSummary, getToggle,
 } from "./homePage";
+import { getModesWithStops } from "./stopsData";
 import { holdStopsRequest } from "./stubs";
 
 type AxeViolation = Awaited<ReturnType<AxeBuilder["analyze"]>>["violations"][number];
@@ -27,11 +28,15 @@ interface FocusIndicator {
 }
 
 // The toggle groups in Tab order; each group's Tab stop is its pressed toggle, which is the first one by default.
-const TOGGLE_GROUPS = [
-  { label: "day", toggleNames: DAY_TOGGLE_NAMES },
-  { label: "time band", toggleNames: TIME_BAND_TOGGLE_NAMES },
-  { label: "mode", toggleNames: MODE_TOGGLE_NAMES },
-];
+// The mode group lists only the modes with stops in the data; a disabled toggle is skipped by Tab and the arrow keys.
+function getToggleGroups(modesWithStops: Set<string>) {
+  return [
+    { label: "day", toggleNames: DAY_TOGGLE_NAMES },
+    { label: "time band", toggleNames: TIME_BAND_TOGGLE_NAMES },
+    { label: "mode", toggleNames: MODE_TOGGLE_NAMES.filter((name) => modesWithStops.has(name)) },
+  ];
+}
+type ToggleGroups = ReturnType<typeof getToggleGroups>;
 const MIN_DEPARTURES_TAB_STOP = 4;
 const RADIUS_TAB_STOP = 5;
 const WHITE: Rgba = [255, 255, 255, 255];
@@ -161,9 +166,9 @@ function getGroupOf(page: Page, toggle: Locator) {
   return page.getByRole("group").or(page.getByRole("radiogroup")).filter({ has: toggle }).last();
 }
 
-function getTabStopLocators(page: Page) {
+function getTabStopLocators(page: Page, toggleGroups: ToggleGroups) {
   return [
-    ...TOGGLE_GROUPS.map((group) => getToggle(page, group.toggleNames[0])),
+    ...toggleGroups.map((group) => getToggle(page, group.toggleNames[0])),
     getMinDeparturesSlider(page),
     getRadiusSlider(page),
     getAttributionLink(page),
@@ -180,18 +185,20 @@ test("axe finds no WCAG 2.0/2.1 A or AA violations on the loaded page", async ({
   expect(report, `axe violations:\n${report.join("\n")}`).toEqual([]);
 });
 
-test("Tab moves through the toggle groups, both sliders and the data link in order", async ({ page }) => {
-  for (const tabStop of getTabStopLocators(page)) {
+test("Tab moves through the toggle groups, both sliders and the data link in order", async ({ page, request }) => {
+  const toggleGroups = getToggleGroups(await getModesWithStops(request));
+  for (const tabStop of getTabStopLocators(page, toggleGroups)) {
     await page.keyboard.press("Tab");
     await expect(tabStop).toBeFocused();
   }
 });
 
 for (const theme of THEMES) {
-  test(`every Tab stop shows a focus indicator with at least ${MIN_FOCUS_INDICATOR_CONTRAST}:1 contrast (${theme} theme)`, async ({ page }) => {
+  test(`every Tab stop shows a focus indicator with at least ${MIN_FOCUS_INDICATOR_CONTRAST}:1 contrast (${theme} theme)`, async ({ page, request }) => {
+    const toggleGroups = getToggleGroups(await getModesWithStops(request));
     // Dark mode is class-based (.dark on an ancestor), so emulating prefers-color-scheme would not switch it.
     if (theme === "dark") await page.evaluate(() => document.documentElement.classList.add("dark"));
-    for (const tabStop of getTabStopLocators(page)) {
+    for (const tabStop of getTabStopLocators(page, toggleGroups)) {
       await page.keyboard.press("Tab");
       await expect(tabStop).toBeFocused();
       const focusIndicator = await getFocusIndicator(page);
@@ -213,8 +220,9 @@ test("the contrast ratio is 21 for black on white, 1 for a colour on itself, and
   expect(getContrastRatio(oldRing, WHITE)).toBeLessThan(MIN_FOCUS_INDICATOR_CONTRAST);
 });
 
-test("arrow keys, Home and End move focus inside each toggle group without pressing", async ({ page }) => {
-  for (const [groupIndex, group] of TOGGLE_GROUPS.entries()) {
+test("arrow keys, Home and End move focus inside each toggle group without pressing", async ({ page, request }) => {
+  const toggleGroups = getToggleGroups(await getModesWithStops(request));
+  for (const [groupIndex, group] of toggleGroups.entries()) {
     await test.step(`${group.label} group`, async () => {
       const toggleNames = group.toggleNames;
       const lastIndex = toggleNames.length - 1;
@@ -274,10 +282,29 @@ test("arrow keys change both sliders", async ({ page }) => {
   }
 });
 
-test("each toggle group has an accessible name", async ({ page }) => {
-  for (const group of TOGGLE_GROUPS) {
+test("each toggle group has an accessible name", async ({ page, request }) => {
+  const toggleGroups = getToggleGroups(await getModesWithStops(request));
+  for (const group of toggleGroups) {
     const toggleGroup = getGroupOf(page, getToggle(page, group.toggleNames[0]));
     await expect.soft(toggleGroup, `${group.label} group: role group/radiogroup with a name`).toHaveAccessibleName(/\S/);
+  }
+});
+
+test("modes without stops in the data are disabled, not pressed, and named in a visible hint", async ({ page, request }) => {
+  const modesWithStops = await getModesWithStops(request);
+  const unavailableNames = MODE_TOGGLE_NAMES.filter((name) => !modesWithStops.has(name));
+  const hint = page.getByText(UNAVAILABLE_MODES_HINT_PREFIX);
+  if (unavailableNames.length === 0) {
+    await expect(hint).toHaveCount(0);
+    return;
+  }
+  const hintText = `${UNAVAILABLE_MODES_HINT_PREFIX} ${unavailableNames.join(", ")}`;
+  await expect(hint).toHaveText(hintText);
+  for (const name of unavailableNames) {
+    const toggle = getToggle(page, name);
+    await expect(toggle).toBeDisabled();
+    await expect(toggle).toHaveAttribute("aria-pressed", "false");
+    await expect(toggle).toHaveAccessibleDescription(hintText);
   }
 });
 

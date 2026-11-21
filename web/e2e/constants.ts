@@ -16,6 +16,8 @@ export const RADIUS_VALUE_TEXT_PATTERN = /^\d+ m$/;
 export const DAY_TOGGLE_NAMES = ["weekday", "saturday", "sunday"];
 export const TIME_BAND_TOGGLE_NAMES = ["am", "midday", "pm", "evening"];
 export const MODE_TOGGLE_NAMES = ["tram", "metro", "rail", "bus"];
+export const UNAVAILABLE_MODES_HINT_PREFIX = "No stops in the timetable data:";
+export const STOPS_DATA_PATH = "/data/stops.geojson";
 export const MAP_REGION_NAME = "Map of qualifying stops and covered area";
 
 // axe rule tags: WCAG 2.0 and 2.1, levels A and AA.
