@@ -108,6 +108,7 @@ describe("while the stops are loading", () => {
     expect(screen.getByRole("status")).toHaveTextContent(/^Loading stops…$/);
     expect(getMapStopIds()).toEqual([]);
     expect(screen.getByLabelText(/walking radius/i)).toBeEnabled();
+    for (const mode of ["tram", "metro", "rail", "bus"]) expect(getButton(mode)).toBeEnabled();
 
     await userEvent.click(getButton("saturday"));
     expect(getButton("saturday")).toHaveAttribute("aria-pressed", "true");
@@ -168,9 +169,15 @@ describe("after the stops load", () => {
     expect(getLatestMapProps().area).not.toBeNull();
   });
 
+  it("disables rail, because no stop in the data has it", async () => {
+    await renderLoadedHome();
+    expect(getButton("rail")).toBeDisabled();
+    expect(getButton("tram")).toBeEnabled();
+  });
+
   it("gives no stops and a null area when all modes are off", async () => {
     await renderLoadedHome();
-    for (const mode of ["tram", "metro", "rail", "bus"]) {
+    for (const mode of ["tram", "metro", "bus"]) {
       await userEvent.click(getButton(mode));
     }
 
