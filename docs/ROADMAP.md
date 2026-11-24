@@ -12,21 +12,26 @@ Usage analytics and error tracking, privacy-friendly; tool choice decided after 
 
 ### End-to-end testing
 Playwright as a third CI job with read-only permissions, testing the built app via `npm run start`.
-- Status: 🟢 done. `web/e2e/home.spec.ts` (smoke test), `web/e2e/accessibility.spec.ts` (keyboard and axe), `web/e2e/serverHtml.spec.ts` (raw server HTML without JavaScript) and `web/e2e/mobile.spec.ts` (phone layout at 390x844) run in Chromium against the production build, locally with `npm run test:e2e` and in the CI job `e2e`.
+- Status: 🟢 done. `web/e2e/home.spec.ts` (smoke test), `web/e2e/accessibility.spec.ts` (keyboard and axe), `web/e2e/serverHtml.spec.ts` (raw server HTML without JavaScript), `web/e2e/mobile.spec.ts` (phone layout at 390x844), `web/e2e/routes.spec.ts` (language routes and hreflang), `web/e2e/languageSwitch.spec.ts` and `web/e2e/layoutFit.spec.ts` (German text fits) run in Chromium, in English and German, against the production build, locally with `npm run test:e2e` and in the CI job `e2e`.
 - Why: unit and component tests mock the map and data, so only an end-to-end test proves the real page loads and responds.
 - Next step: add an HTML report upload in CI only if failures are hard to read from the log.
 
 ### Accessibility
 Keyboard use, labels, contrast, and axe checks inside the Playwright tests.
-- Status: 🟡 automated checks done in `web/e2e/accessibility.spec.ts` (CI job `e2e`): axe finds no WCAG 2.0/2.1 level A or AA violations; Tab order through the toggle groups, both sliders and the data link; arrow keys, Home and End inside each toggle group; Space and Enter on toggles; arrow keys on both sliders; toggle-group names; slider names without the value, and the radius spoken with its unit; every focus indicator at least 3:1 in the light and the dark theme (measured 4.74:1 light, 6.94:1 and 7.66:1 dark). This is not a claim of full WCAG conformance.
+- Status: 🟡 automated checks done in `web/e2e/accessibility.spec.ts` (CI job `e2e`): axe finds no WCAG 2.0/2.1 level A or AA violations; Tab order through the language switch, the toggle groups, both sliders and the data link; arrow keys, Home and End inside each toggle group; Space and Enter on toggles; arrow keys on both sliders; toggle-group names; slider names without the value, and the radius spoken with its unit; every focus indicator at least 3:1 in the light and the dark theme (measured 4.74:1 light, 6.94:1 and 7.66:1 dark). This is not a claim of full WCAG conformance.
 - Why: the controls and results must work for keyboard and screen-reader users and stay readable.
-- Next step (manual checks): a screen-reader pass; focus order including the map controls; contrast of the map attribution box in the dark theme (its background is always light); a text alternative for the map canvas (the map region is labelled "Map of qualifying stops and covered area"; the canvas inside it has none yet).
+- Next step (manual checks): a screen-reader pass; focus order including the map controls; contrast of the map attribution box in the dark theme (its background is always light); a text description of what the map shows (the map canvas is a region named by our own label, "Map of qualifying stops and covered area", not by MapLibre's default; its content is not described).
 
 ### Internationalization
-Messages are already organised by component in `web/src/i18n/en.ts`; German is the first translation; library choice open.
-- Status: 🔴 not started
+English and German dictionaries organised by component in `web/src/i18n/`; no localization library yet.
+- Status: 🟢 done. English at `/en` and German at `/de` (both prerendered), a language switch next to the title, hreflang alternates, numbers formatted per language (`de-AT`), and every dictionary checked against `en.ts` in `messages.test.ts`.
 - Why: the audience is in Vienna, and the split texts (TODO(i18n)) are waiting for ICU messages.
-- First step: compare localization libraries for the Next.js App Router (next-intl and others: to verify), then translate `en.ts` into German.
+- Follow-ups (🔴 not started):
+  - Styled 404 and error pages in both languages (needs the experimental `global-not-found` or another approach).
+  - Language detection from `Accept-Language`; `/` redirects with a temporary 307 for this reason.
+  - An ICU message library instead of the split texts (the TODO(i18n) comments), and a real ICU parser for the placeholder check in `messages.test.ts`.
+  - Open Graph tags per language (optional).
+  - The time-band labels do not show their hours (07–09, 11–14, 16–19, 19–23) in either language.
 
 ## Analysis improvements
 

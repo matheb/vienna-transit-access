@@ -65,7 +65,7 @@ describe("when ready", () => {
 
   it("formats the numbers for the locale it is given", () => {
     render(
-      <MessagesProvider messages={englishMessages} intlLocale={GERMAN_INTL_LOCALE}>
+      <MessagesProvider messages={englishMessages} intlLocale={GERMAN_INTL_LOCALE} locale="en">
         <ResultsCard loadStatus={StopsLoadStatus.ready} qualifyingStopCount={2} totalStopCount={5} coverage={COVERAGE} />
       </MessagesProvider>,
     );

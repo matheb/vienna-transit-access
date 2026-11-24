@@ -27,3 +27,20 @@ export async function holdStopsRequest(page: Page) {
   });
   return releaseStops;
 }
+
+interface StopsFeature {
+  properties: { modes: string[] };
+}
+
+// Answers the stops request with only the stops that serve the given mode, each listing only that mode, so every
+// other mode has no stops and its toggle is disabled and named in the hint.
+export async function stubStopsWithOneMode(page: Page, mode: string) {
+  await page.route(STOPS_URL_PATTERN, async (route) => {
+    const response = await route.fetch();
+    const stopsData = (await response.json()) as { features: StopsFeature[] };
+    const features = stopsData.features
+      .filter((feature) => feature.properties.modes.includes(mode))
+      .map((feature) => ({ ...feature, properties: { ...feature.properties, modes: [mode] } }));
+    await route.fulfill({ response, json: { ...stopsData, features } });
+  });
+}

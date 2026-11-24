@@ -1,4 +1,4 @@
-import { AREA_UNIT_TEXT, LOADING_TEXT, STOPS_SUMMARY_TEXT } from "./constants";
+import { LOCALE_PATHS, PAGE_LANGUAGES, TEXT } from "./constants";
 import { expect, test } from "./fixtures";
 
 const CONTEXT_CHARS = 60;
@@ -13,11 +13,16 @@ function findWithContext(html: string, text: string) {
 }
 
 // Crawlers and link previews read the server HTML without running JavaScript, so it must hold no made-up results.
-test("server HTML shows the loading state and no result numbers", async ({ request }) => {
-  const response = await request.get("/");
-  expect(response.ok()).toBe(true);
-  const html = await response.text();
-  expect(findWithContext(html, LOADING_TEXT), "loading text in server HTML").toHaveLength(1);
-  expect(findWithContext(html, STOPS_SUMMARY_TEXT), "stops summary in server HTML").toEqual([]);
-  expect(findWithContext(html, AREA_UNIT_TEXT), "covered area in server HTML").toEqual([]);
-});
+for (const language of PAGE_LANGUAGES) {
+  const texts = TEXT[language];
+  const path = LOCALE_PATHS[language];
+
+  test(`server HTML of ${path} shows the loading state and no result numbers`, async ({ request }) => {
+    const response = await request.get(path);
+    expect(response.ok(), `status ${response.status()} of ${path}`).toBe(true);
+    const html = await response.text();
+    expect(findWithContext(html, texts.loadingText), "loading text in server HTML").toHaveLength(1);
+    expect(findWithContext(html, texts.stopsSummaryText), "stops summary in server HTML").toEqual([]);
+    expect(findWithContext(html, texts.areaUnitText), "covered area in server HTML").toEqual([]);
+  });
+}

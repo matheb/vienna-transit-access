@@ -20,13 +20,13 @@ Rules for agents and humans changing code in `web/`. Some target locations (e.g.
 
 ## Structure
 - Data fetching lives in `src/services/` (e.g. `stopsService.ts`), not in components.
-- All user-facing text lives in `src/i18n/en.ts` as a next-intl-shaped `messages` object (we plan to add a localization package).
+- All user-facing text lives in the dictionaries `src/i18n/<locale>.ts` (see Internationalization below).
 - Pure geo logic lives in `src/lib/geo/` and is unit-tested; UI lives in `src/components/`.
 - Constants such as fonts and class strings go outside components, so component files stay small (fonts in `src/app/fonts.ts`, other constants in `src/constants/<area>.ts`, e.g. `src/constants/home.ts`).
 - Types that other files can reuse go outside components, next to the module that owns the concept (`StopsLoadStatus` in `stopsService.ts`). Reuse an existing type before adding a new type or constant for the same values.
 - Extract repeated Tailwind class strings or JSX blocks into small components in `src/components/`.
 
-## Messages (`src/i18n/en.ts`)
+## Messages (`src/i18n/en.ts` defines the keys; every other dictionary has the same)
 - The top-level key is the component or feature that uses the text, in PascalCase and spelled exactly like the component. This is the one exception to camelCase naming.
 - A text belongs to the component that reads it from `messages`. Generic components that receive text as props (`LabeledSlider`, `OptionToggleGroup`) have no namespace of their own.
 - The second level names the role of the text: `title`, `label`, `description`, `unit`, `loading`, `error`, ... If a component has several texts of the same role, group them by element first.
@@ -39,6 +39,31 @@ Rules for agents and humans changing code in `web/`. Some target locations (e.g.
 Examples:
 - One text of a role: `ResultsCard.loading` -> "Loading stops…"
 - Grouped by element: `ControlsPanel.radiusSlider.label` -> "Walking radius:" and `ControlsPanel.dayToggle.options.weekday` -> "weekday"
+
+## Internationalization
+- One dictionary per page language: `src/i18n/<locale>.ts`. `en.ts` is `as const` and defines the shape; every other
+  dictionary is typed with `satisfies Messages`, so a missing or misspelled key fails typecheck.
+- `src/i18n/messages.test.ts` checks every dictionary against `en.ts`: the same keys, no empty texts, the same placeholders.
+- Components read text through `useMessages()` and format numbers with `getFormattedNumber()` and the page's Intl
+  locale from `useIntlLocale()`. Lint enforces this in `src/app/` and `src/components/`: no hard-coded text, no
+  `toFixed`, and no imports of `@/i18n/en` or `@/i18n/de` in components and pages.
+- A language is registered in three places only: `LOCALES` and `LOCALE_NAMES` in `src/i18n/locales.ts`, and
+  `MESSAGES_BY_LOCALE` (read through `getLocaleMessages()`) in `src/i18n/messages.ts`. Routes, prerendering and the
+  hreflang alternates are built from `LOCALES`.
+- The server HTML must not contain the dictionary: the layout passes only the locale string to
+  `LocaleMessagesProvider`, which looks up the dictionary in the browser bundle.
+- Language names in the switch (`LOCALE_NAMES`) are each written in their own language and are not translated.
+
+### Adding a language
+1. `src/i18n/<locale>.ts`, typed with `satisfies Messages`.
+2. Add the locale to `LOCALES` and its own name to `LOCALE_NAMES` (`src/i18n/locales.ts`).
+3. Add it to `MESSAGES_BY_LOCALE` with its Intl locale (`src/i18n/messages.ts`; German uses `de-AT`).
+4. In `e2e/constants.ts`: add it to `PAGE_LANGUAGES` and `LOCALE_PATHS`, and add its `TEXT` entry.
+5. Run `npm test` (dictionary check), the four checks, and `npm run test:e2e`; the `layoutFit.spec.ts` guards show
+   whether the longer texts fit.
+
+The e2e texts assume exactly one other language (`otherLanguageLinkName`), so a third language also means reworking
+the language-switch tests.
 
 ## React & TypeScript
 - Do not define functions inside `useEffect`. Keep the effect to one call to a helper outside the component that returns its cleanup: `useEffect(() => startStopsLoad(setAllStops, setLoadStatus), [])`.
@@ -64,17 +89,18 @@ Examples:
 - Run them with `npm run test:e2e`. It builds the app and starts it with `next start` on port 3100 (never the dev server). It is separate from the four checks.
 - One-time setup per machine: `npx --no playwright install --only-shell chromium` downloads the headless Chromium shell (about 120 MB) to `%USERPROFILE%\AppData\Local\ms-playwright\`, outside the repo. Re-run it after upgrading `@playwright/test`.
 - Structure (keep it lean):
-  - `e2e/constants.ts`: expected user-visible texts and name patterns as literals, URL patterns, timeouts.
+  - `e2e/constants.ts`: expected user-visible texts per page language (`TEXT.en`, `TEXT.de`), name patterns as literals, URL patterns, timeouts.
   - `e2e/stubs.ts`: request stubs (`stubCartoRequests`, `holdStopsRequest`).
   - `e2e/fixtures.ts`: exports `test` and `expect`. Its automatic fixture stubs CARTO, prints console errors and fails the test on any uncaught page error.
-  - `e2e/<page>Page.ts` (e.g. `homePage.ts`): small functions returning locators, by role and accessible label.
+  - `e2e/<page>Page.ts` (e.g. `homePage.ts`): small functions returning locators, by role and accessible label. Locators that depend on the page language take its texts.
   - The specs.
 - Specs import `test` and `expect` only from `./fixtures`, never from `@playwright/test`.
 - Assertions stay in the specs; page files only return locators.
-- No imports from `src/`: expected texts are literals in `e2e/constants.ts`, not taken from `src/i18n/en.ts`, so a changed label fails the test.
+- No imports from `src/`: expected texts are literals per language in `TEXT` in `e2e/constants.ts`, never taken from the dictionaries, so a changed label fails the test.
 - No page-object classes or class hierarchy yet; plain functions until a second page needs more.
 - CARTO is always stubbed (empty style, `application/json`, `access-control-allow-origin: *`), so tests never depend on CARTO. Assert on our own data and controls, never on map pixels.
 - Same query rules as above: role and accessible label, no snapshots, no CSS selectors. No fixed sleeps: use web-first `expect` assertions, and hold a request with `holdStopsRequest` to test a loading state.
+- The one agreed CSS-selector exception: the hreflang `<link>` elements in `<head>` (`routes.spec.ts`), which have no role.
 - Page console errors are printed to the run output without failing the test; uncaught page errors fail it.
 - Accessibility: `accessibility.spec.ts` runs axe with the tags in `AXE_WCAG_TAGS` (WCAG 2.0/2.1 A and AA) on the fully loaded page and fails on any violation. Never disable rules or exclude elements to make it pass; an exclusion needs explicit agreement and a comment that says what and why.
 - Check that a new e2e assertion fails when the behaviour it covers is broken (for example, change a label temporarily), then revert.

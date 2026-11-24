@@ -1,27 +1,88 @@
-// Expected texts are literals on purpose: an e2e test checks what the user sees, so a changed label must fail.
-// Never import them from src/.
-export const PAGE_TITLE = "Vienna transit accessibility";
-export const LOADING_TEXT = "Loading stops…";
-export const STOPS_SUMMARY_PATTERN = /^\d+ of \d+ stops qualify$/;
-export const COVERED_AREA_PATTERN = /^Covered area:/;
-// Words that only appear when results are shown; the server HTML must contain neither.
-export const STOPS_SUMMARY_TEXT = "stops qualify";
-export const AREA_UNIT_TEXT = "km²";
-export const MIN_DEPARTURES_SLIDER_NAME = /^Min\. departures\/hour:/;
-export const RADIUS_SLIDER_NAME = /^Walking radius:/;
-export const MODE_TOGGLE_NAME = "bus";
+// The page languages the tests cover, and the path of each.
+export const PAGE_LANGUAGES = ["en", "de"] as const;
+export type PageLanguage = (typeof PAGE_LANGUAGES)[number];
+export const LOCALE_PATHS: Record<PageLanguage, string> = { en: "/en", de: "/de" };
+
+// The modes the tests know, as in stops.geojson ("modes"); the toggles follow the data.
+type TestedMode = "tram" | "metro" | "rail" | "bus";
+
+// What one page language shows. Every language must have all of these.
+export interface PageTexts {
+  pageTitle: string;
+  loadingText: string;
+  stopsSummaryPattern: RegExp;
+  coveredAreaPattern: RegExp;
+  // Words that only appear when results are shown; the server HTML must contain neither.
+  stopsSummaryText: string;
+  areaUnitText: string;
+  minDeparturesSliderName: RegExp;
+  radiusSliderName: RegExp;
+  radiusValueTextPattern: RegExp;
+  dayToggleNames: string[];
+  timeBandToggleNames: string[];
+  // Toggle label per data mode, in the order the toggles appear.
+  modeToggleNames: Record<TestedMode, string>;
+  unavailableModesHintPrefix: string;
+  mapRegionName: string;
+  // The language switch: a link to the other language inside a <nav> named for it.
+  languageNavName: string;
+  otherLanguageLinkName: string;
+  otherLanguagePath: string;
+  otherLanguageCode: string;
+}
+
+// Expected texts per page language. They are literals on purpose: an e2e test checks what the user sees, so a changed
+// label must fail. Never import them from src/.
+export const TEXT = {
+  en: {
+    pageTitle: "Vienna transit accessibility",
+    loadingText: "Loading stops…",
+    stopsSummaryPattern: /^\d+ of \d+ stops qualify$/,
+    coveredAreaPattern: /^Covered area:/,
+    stopsSummaryText: "stops qualify",
+    areaUnitText: "km²",
+    minDeparturesSliderName: /^Min\. departures\/hour:/,
+    radiusSliderName: /^Walking radius:/,
+    // \s: Intl may put a no-break space between the number and the unit.
+    radiusValueTextPattern: /^\d+\sm$/,
+    dayToggleNames: ["weekday", "saturday", "sunday"],
+    timeBandToggleNames: ["am", "midday", "pm", "evening"],
+    modeToggleNames: { tram: "tram", metro: "metro", rail: "rail", bus: "bus" },
+    unavailableModesHintPrefix: "No stops in the timetable data:",
+    mapRegionName: "Map of qualifying stops and covered area",
+    languageNavName: "Language",
+    otherLanguageLinkName: "Deutsch",
+    otherLanguagePath: LOCALE_PATHS.de,
+    otherLanguageCode: "de",
+  },
+  de: {
+    pageTitle: "Öffi-Erreichbarkeit in Wien",
+    loadingText: "Haltestellen werden geladen…",
+    stopsSummaryPattern: /^\d+ von \d+ Haltestellen erfüllen die Kriterien$/,
+    coveredAreaPattern: /^Abgedeckte Fläche:/,
+    stopsSummaryText: "Haltestellen erfüllen die Kriterien",
+    areaUnitText: "km²",
+    minDeparturesSliderName: /^Min\. Abfahrten\/Stunde:/,
+    radiusSliderName: /^Gehradius:/,
+    radiusValueTextPattern: /^\d+\sm$/,
+    dayToggleNames: ["Werktag", "Samstag", "Sonntag"],
+    timeBandToggleNames: ["morgens", "mittags", "nachmittags", "abends"],
+    modeToggleNames: { tram: "Straßenbahn", metro: "U-Bahn", rail: "Bahn", bus: "Bus" },
+    unavailableModesHintPrefix: "Nicht im Datensatz:",
+    mapRegionName: "Karte der qualifizierenden Haltestellen und der abgedeckten Fläche",
+    languageNavName: "Sprache",
+    otherLanguageLinkName: "English",
+    otherLanguagePath: LOCALE_PATHS.en,
+    otherLanguageCode: "en",
+  },
+} satisfies Record<PageLanguage, PageTexts>;
+
+// The same in every language.
 export const ATTRIBUTION_LINK_NAME = "data.wien.gv.at";
 export const ATTRIBUTION_URL = "https://data.wien.gv.at";
-export const RADIUS_VALUE_TEXT_PATTERN = /^\d+ m$/;
-export const DAY_TOGGLE_NAMES = ["weekday", "saturday", "sunday"];
-export const TIME_BAND_TOGGLE_NAMES = ["am", "midday", "pm", "evening"];
-export const MODE_TOGGLE_NAMES = ["tram", "metro", "rail", "bus"];
-export const UNAVAILABLE_MODES_HINT_PREFIX = "No stops in the timetable data:";
 export const STOPS_DATA_PATH = "/data/stops.geojson";
-export const MAP_REGION_NAME = "Map of qualifying stops and covered area";
 
-// Routes: / sends visitors to the English page; a language we do not offer has no page.
-export const ENGLISH_PATH = "/en";
+// Routes: / sends visitors to the English page (LOCALE_PATHS.en); a language we do not offer has no page.
 export const UNSUPPORTED_LOCALE_PATH = "/fr";
 export const TEMPORARY_REDIRECT_STATUS = 307;
 export const NOT_FOUND_STATUS = 404;
@@ -37,6 +98,10 @@ export const MIN_FOCUS_INDICATOR_CONTRAST = 3;
 // Phone viewport (390 x 844 CSS px) and the smallest share of its height the map must get there.
 export const MOBILE_VIEWPORT = { width: 390, height: 844 };
 export const MIN_MAP_VIEWPORT_SHARE = 0.5;
+// Playwright's "Desktop Chrome" size, which the rest of the suite runs at; the layout guards also run here.
+export const DESKTOP_VIEWPORT = { width: 1280, height: 720 };
+// Layout boxes have fractional sizes; 1 CSS px absorbs rounding, so only real overflow fails a guard.
+export const SUBPIXEL_TOLERANCE_PX = 1;
 
 // Request URL patterns used by the stubs.
 export const STOPS_URL_PATTERN = "**/data/stops.geojson";
