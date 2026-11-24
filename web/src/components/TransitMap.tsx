@@ -3,6 +3,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import type { Feature, FeatureCollection, MultiPolygon, Polygon } from "geojson";
 import { setWorkerUrl } from "maplibre-gl";
 import Map, { Layer, Source } from "react-map-gl/maplibre";
+import { useMessages } from "@/i18n/MessagesProvider";
 import { MAP_COLORS } from "@/styles/mapColors";
 
 // Worker is copied to public/ by scripts/copy-maplibre-worker.mjs; set before any map is created.
@@ -23,8 +24,14 @@ interface TransitMapProps {
 }
 
 export default function TransitMap({ stops, area }: TransitMapProps) {
+  const messages = useMessages();
+  // MapLibre's own UI texts. It reads them once, when the map is created.
+  const mapLocale = {
+    "Map.Title": messages.TransitMap.mapLabel,
+    "AttributionControl.ToggleAttribution": messages.TransitMap.toggleAttributionLabel,
+  };
   return (
-    <Map initialViewState={INITIAL_VIEW_STATE} mapStyle={BASEMAP_STYLE_URL} style={MAP_CONTAINER_STYLE}>
+    <Map initialViewState={INITIAL_VIEW_STATE} mapStyle={BASEMAP_STYLE_URL} style={MAP_CONTAINER_STYLE} locale={mapLocale}>
       {area && (
         <Source id="coverage" type="geojson" data={area}>
           <Layer id="coverage-fill" type="fill" paint={{ "fill-color": MAP_COLORS.coverage, "fill-opacity": COVERAGE_FILL_OPACITY }} />

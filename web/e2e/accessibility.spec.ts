@@ -6,7 +6,7 @@ import {
 } from "./constants";
 import { expect, test } from "./fixtures";
 import {
-  getAttributionLink, getCoveredArea, getLoadingStatus, getMinDeparturesSlider,
+  getAttributionLink, getCoveredArea, getLoadingStatus, getMapRegion, getMinDeparturesSlider,
   getRadiusSlider, getStopsSummary, getToggle,
 } from "./homePage";
 import { getModesWithStops } from "./stopsData";
@@ -183,6 +183,12 @@ test("axe finds no WCAG 2.0/2.1 A or AA violations on the loaded page", async ({
   const results = await new AxeBuilder({ page }).withTags(AXE_WCAG_TAGS).analyze();
   const report = getViolationReport(results.violations);
   expect(report, `axe violations:\n${report.join("\n")}`).toEqual([]);
+});
+
+// MapLibre names its canvas with our map label; the section around it has no name, so there is no second region.
+test("exactly one region has the map's name, and it is the map canvas", async ({ page }) => {
+  await expect(getMapRegion(page)).toHaveCount(1);
+  await expect(getMapRegion(page)).toHaveJSProperty("tagName", "CANVAS");
 });
 
 test("Tab moves through the toggle groups, both sliders and the data link in order", async ({ page, request }) => {

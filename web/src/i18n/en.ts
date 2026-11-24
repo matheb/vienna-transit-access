@@ -8,7 +8,6 @@ export const messages = {
   },
   HomePage: {
     title: "Vienna transit accessibility",
-    mapRegionLabel: "Map of qualifying stops and covered area",
   },
   ControlsPanel: {
     title: "Parameters",
@@ -71,5 +70,10 @@ export const messages = {
     prefix: "Timetable data: Wiener Linien (GTFS). Datenquelle: Stadt Wien –",
     link: "data.wien.gv.at",
     suffix: ", CC BY",
+  },
+  TransitMap: {
+    // Given to MapLibre: the canvas uses mapLabel as its accessible name (role "region").
+    mapLabel: "Map of qualifying stops and covered area",
+    toggleAttributionLabel: "Toggle attribution",
   },
 } as const;
