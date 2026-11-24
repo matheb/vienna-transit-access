@@ -3,10 +3,13 @@ import "@/test/setupDom";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import ResultsCard from "@/components/ResultsCard";
+import { messages as englishMessages } from "@/i18n/en";
+import { MessagesProvider } from "@/i18n/MessagesProvider";
 import { StopsLoadStatus } from "@/services/stopsService";
 
 const COVERAGE = { polygon: null, areaKm2: 12.34, viennaShare: 0.034 };
 const EMPTY_COVERAGE = { polygon: null, areaKm2: 0, viennaShare: 0 };
+const GERMAN_INTL_LOCALE = "de-AT";
 
 function renderResultsCard(loadStatus: StopsLoadStatus, qualifyingStopCount = 2, coverage = COVERAGE) {
   render(<ResultsCard loadStatus={loadStatus} qualifyingStopCount={qualifyingStopCount} totalStopCount={5} coverage={coverage} />);
@@ -58,6 +61,15 @@ describe("when ready", () => {
     expect(getStopsSummary()).toHaveTextContent("0 of 5 stops qualify");
     expect(getAreaSummary()).toHaveTextContent(/^Covered area: 0\.0 km²$/);
     expect(getShareSummary()).toHaveTextContent(/^0% of Vienna, approx\.$/);
+  });
+
+  it("formats the numbers for the locale it is given", () => {
+    render(
+      <MessagesProvider messages={englishMessages} intlLocale={GERMAN_INTL_LOCALE}>
+        <ResultsCard loadStatus={StopsLoadStatus.ready} qualifyingStopCount={2} totalStopCount={5} coverage={COVERAGE} />
+      </MessagesProvider>,
+    );
+    expect(getAreaSummary()).toHaveTextContent(/^Covered area: 12,3 km²$/);
   });
 });
 

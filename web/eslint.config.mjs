@@ -12,6 +12,7 @@ const eslintConfig = defineConfig([
       "no-restricted-syntax": ["error",
         { selector: "JSXText[value=/[A-Za-z]/]", message: "Put user-facing text in src/i18n/." },
         { selector: "JSXAttribute[name.name=/^(alt|aria-label|label|placeholder|title|unit)$/] > Literal", message: "Put user-facing text in src/i18n/." },
+        { selector: "CallExpression[callee.property.name='toFixed']", message: "Format numbers with getFormattedNumber() from src/lib/format.ts." },
       ],
     },
   },
