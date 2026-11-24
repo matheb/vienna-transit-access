@@ -3,6 +3,7 @@ import dynamic from "next/dynamic";
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import ControlsPanel from "@/components/ControlsPanel";
 import DataAttribution from "@/components/DataAttribution";
+import LanguageSwitch from "@/components/LanguageSwitch";
 import ResultsCard from "@/components/ResultsCard";
 import { DEFAULT_FILTER_PARAMS } from "@/constants/home";
 import { SELECTABLE_MODES, filterStops, getAvailableModes, getCoverage, type FilterParams, type Stop } from "@/lib/geo/coverage";
@@ -40,7 +41,10 @@ export default function HomePage() {
   return (
     <main className="flex h-dvh flex-col md:h-screen md:flex-row">
       <aside className="min-h-0 w-full flex-1 space-y-4 overflow-y-auto p-4 md:w-96 md:flex-initial">
-        <h1 className="text-xl font-semibold">{messages.HomePage.title}</h1>
+        <div className="flex items-baseline justify-between gap-4">
+          <h1 className="text-xl font-semibold">{messages.HomePage.title}</h1>
+          <LanguageSwitch />
+        </div>
         <ControlsPanel filterParams={filterParams} availableModes={availableModes} onFilterParamChange={updateFilterParam} />
         <ResultsCard
           loadStatus={loadStatus}

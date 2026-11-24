@@ -13,5 +13,5 @@ interface LocaleMessagesProviderProps {
 // written into the server HTML.
 export function LocaleMessagesProvider({ locale, children }: LocaleMessagesProviderProps) {
   const { messages, intlLocale } = getLocaleMessages(locale);
-  return <MessagesProvider messages={messages} intlLocale={intlLocale}>{children}</MessagesProvider>;
+  return <MessagesProvider messages={messages} intlLocale={intlLocale} locale={locale}>{children}</MessagesProvider>;
 }

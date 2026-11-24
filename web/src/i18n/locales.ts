@@ -5,6 +5,8 @@ export type Locale = (typeof LOCALES)[number];
 export const DEFAULT_LOCALE: Locale = "en";
 // BCP 47 tag for Intl number formatting on the English page.
 export const DEFAULT_INTL_LOCALE = "en";
+// Each language's name in that language, shown in the language switch. Not translated, so not in the dictionaries.
+export const LOCALE_NAMES: Record<Locale, string> = { en: "English", de: "Deutsch" };
 
 // Narrows a route parameter to a page language.
 export function isLocale(value: string): value is Locale {
