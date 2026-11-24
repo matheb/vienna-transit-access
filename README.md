@@ -1,12 +1,15 @@
 # Vienna transit accessibility
 
-Live demo: https://vienna-transit-access.vercel.app/
+Live demo: https://vienna-transit-access.vercel.app/en
 
 [![CI](https://github.com/matheb/vienna-transit-access/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/matheb/vienna-transit-access/actions/workflows/ci.yml)
 
 Which parts of Vienna are within walking distance of frequent public transport?
 The app shows the Wiener Linien stops that reach a chosen number of departures per hour, and the area within a chosen
 straight-line distance of them, for a chosen day type and time of day.
+
+The app is available in English (`/en`) and German (`/de`); a link next to the title switches between them, and `/`
+redirects to the English page.
 
 Built with Next.js, TypeScript, Tailwind CSS, shadcn/ui, MapLibre, Python (pandas), Vitest and Playwright.
 
@@ -120,7 +123,7 @@ CI (`.github/workflows/ci.yml`) runs on pull requests and pushes to `main`, in t
 Automated checks (`web/e2e/accessibility.spec.ts`, run in CI):
 
 - axe finds no WCAG 2.0 or 2.1 level A or AA violations on the loaded page.
-- Tab reaches the toggle groups, both sliders and the data link in order. In each toggle group, the Left and Right
+- Tab reaches the language switch, the toggle groups, both sliders and the data link in order. In each toggle group, the Left and Right
   arrow keys, Home and End move focus without pressing a toggle. Space presses a day toggle and Enter presses a
   time-of-day toggle. The Left and Right arrow keys change both sliders.
 - The toggle groups have accessible names. Slider names do not include the value, and the radius is spoken with its
@@ -128,15 +131,16 @@ Automated checks (`web/e2e/accessibility.spec.ts`, run in CI):
 - Every Tab stop shows a focus indicator with at least 3:1 contrast against its background, in the light and the dark
   theme. The dark theme is tested by adding the `dark` class; the app has no theme switch yet.
 
-On phones the map is shown first but comes last in the Tab order, after the data link. The map region has a name
-("Map of qualifying stops and covered area"), but the map canvas inside it has no text alternative yet.
+On phones the map is shown first but comes last in the Tab order, after the data link. The map canvas is a region
+named by our own label ("Map of qualifying stops and covered area" / "Karte der qualifizierenden Haltestellen und der
+abgedeckten Fläche"), not by MapLibre's default; it has no text description of what the map shows yet.
 
 Still open (manual checks):
 
 - A screen-reader pass.
 - Focus order including the map controls.
 - Contrast of the map attribution box in the dark theme.
-- A text alternative for the map canvas (the region around it is named).
+- A text description of what the map shows (the canvas is named, but its content is not described).
 
 Automated tools find only part of all accessibility problems, so this is not a claim of full WCAG conformance.
 
