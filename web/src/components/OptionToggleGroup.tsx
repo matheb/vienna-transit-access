@@ -22,7 +22,8 @@ export default function OptionToggleGroup<T extends string>({
   const hasDisabledOptions = disabledOptions.length > 0;
   return (
     <div className="space-y-1.5">
-      <ToggleGroup aria-label={groupLabel} multiple={multiple} value={value} onValueChange={onValueChange}>
+      {/* flex-wrap: longer labels (German time bands) move to a second row instead of overflowing the panel. */}
+      <ToggleGroup aria-label={groupLabel} multiple={multiple} value={value} onValueChange={onValueChange} className="flex-wrap">
         {options.map((option) => {
           const isDisabled = disabledOptions.includes(option);
           return (

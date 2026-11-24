@@ -39,7 +39,7 @@ export const messages = {
         other: "Sonstige",
       },
       // TODO(i18n): followed by the disabled modes' labels; turn into an ICU list ({modes}) once a localization package is added.
-      unavailableHint: "Keine Haltestellen im Datensatz:",
+      unavailableHint: "Nicht im Datensatz:",
     },
     minDeparturesSlider: {
       label: "Min. Abfahrten/Stunde:",

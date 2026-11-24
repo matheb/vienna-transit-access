@@ -68,7 +68,7 @@ export const TEXT = {
     dayToggleNames: ["Werktag", "Samstag", "Sonntag"],
     timeBandToggleNames: ["morgens", "mittags", "nachmittags", "abends"],
     modeToggleNames: { tram: "Straßenbahn", metro: "U-Bahn", rail: "Bahn", bus: "Bus" },
-    unavailableModesHintPrefix: "Keine Haltestellen im Datensatz:",
+    unavailableModesHintPrefix: "Nicht im Datensatz:",
     mapRegionName: "Karte der qualifizierenden Haltestellen und der abgedeckten Fläche",
     languageNavName: "Sprache",
     otherLanguageLinkName: "English",
