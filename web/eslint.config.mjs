@@ -10,9 +10,22 @@ const eslintConfig = defineConfig([
     ignores: ["src/components/ui/**", "**/*.test.tsx"],
     rules: {
       "no-restricted-syntax": ["error",
-        { selector: "JSXText[value=/[A-Za-z]/]", message: "Put user-facing text in src/i18n/en.ts." },
-        { selector: "JSXAttribute[name.name=/^(alt|aria-label|label|placeholder|title|unit)$/] > Literal", message: "Put user-facing text in src/i18n/en.ts." },
+        { selector: "JSXText[value=/[A-Za-z]/]", message: "Put user-facing text in src/i18n/." },
+        { selector: "JSXAttribute[name.name=/^(alt|aria-label|label|placeholder|title|unit)$/] > Literal", message: "Put user-facing text in src/i18n/." },
       ],
+    },
+  },
+  {
+    // Components and pages read text through the hook, so the page language decides it; layout.tsx may import en.ts.
+    files: ["src/components/**/*.{ts,tsx}", "src/app/**/page.tsx"],
+    ignores: ["src/components/ui/**", "**/*.test.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": ["error", {
+        patterns: [{
+          group: ["@/i18n/en", "@/i18n/de", "**/i18n/en", "**/i18n/de"],
+          message: "Read text through useMessages() from src/i18n/MessagesProvider.",
+        }],
+      }],
     },
   },
   // Override default ignores of eslint-config-next.
