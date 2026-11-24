@@ -6,6 +6,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import Home from "@/app/[locale]/page";
 import type TransitMap from "@/components/TransitMap";
+import { RESULTS_ANNOUNCEMENT_DELAY_MS } from "@/constants/home";
 import type { Stop } from "@/lib/geo/coverage";
 import { fetchStops } from "@/services/stopsService";
 import { getStopFixture } from "@/test/stopFixtures";
@@ -62,6 +63,10 @@ function getStopsSummary() {
   return screen.getByText(/stops qualify/);
 }
 
+function queryLoadingText() {
+  return screen.queryByText(/^Loading stops…$/);
+}
+
 function getButton(name: string) {
   return screen.getByRole("button", { name });
 }
@@ -74,7 +79,7 @@ async function renderLoadedHome() {
   fetchStopsMock.mockResolvedValue(ALL_STOPS);
   render(<Home />);
   await waitForMapToRender();
-  await waitFor(() => expect(screen.queryByRole("status")).not.toBeInTheDocument());
+  await waitFor(() => expect(queryLoadingText()).not.toBeInTheDocument());
   await waitFor(() => expect(getMapStopIds()).toEqual(["tram-stop", "bus-stop"]));
 }
 
@@ -113,13 +118,23 @@ describe("while the stops are loading", () => {
     await userEvent.click(getButton("saturday"));
     expect(getButton("saturday")).toHaveAttribute("aria-pressed", "true");
   });
+
+  it("keeps the same status element when the stops have loaded", async () => {
+    const pendingStops = Promise.withResolvers<Stop[]>();
+    fetchStopsMock.mockReturnValue(pendingStops.promise);
+    render(<Home />);
+    const loadingStatus = screen.getByRole("status");
+    await act(async () => pendingStops.resolve(ALL_STOPS));
+    await waitFor(() => expect(getStopsSummary()).toBeVisible());
+    expect(screen.getByRole("status")).toBe(loadingStatus);
+  });
 });
 
 describe("after the stops load", () => {
   it("removes the loading text, shows the counts and gives the map the qualifying stops and an area", async () => {
     await renderLoadedHome();
 
-    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+    expect(queryLoadingText()).not.toBeInTheDocument();
     expect(getStopsSummary()).toBeVisible();
     expect(getStopsSummary()).toHaveTextContent("2 of 3 stops qualify");
     expect(getLatestMapProps().area).not.toBeNull();
@@ -174,6 +189,22 @@ describe("after the stops load", () => {
     await expectQualifyingStops("0 of 3 stops qualify", []);
     expect(getLatestMapProps().area).toBeNull();
   });
+
+  it("announces nothing for the first results, then the settled result after a change", async () => {
+    await renderLoadedHome();
+    expect(screen.getByRole("status")).toBeEmptyDOMElement();
+
+    // Real timers: RTL's async helpers (userEvent, waitFor) do not work with Vitest's fake timers. The exact delay is
+    // tested with fake timers in useSettledAnnouncement.test.ts.
+    await userEvent.click(getButton("sunday"));
+    await waitFor(() => expect(getStopsSummary()).toHaveTextContent("1 of 3 stops qualify"));
+    expect(screen.getByRole("status")).toBeEmptyDOMElement();
+    await waitFor(
+      () => expect(screen.getByRole("status"))
+        .toHaveTextContent(/^1 of 3 stops qualify\. Covered area: \d+\.\d km²\. \d+% of Vienna, approx\.$/),
+      { timeout: 2 * RESULTS_ANNOUNCEMENT_DELAY_MS },
+    );
+  });
 });
 
 describe("after the fetch fails", () => {
@@ -183,6 +214,7 @@ describe("after the fetch fails", () => {
     render(<Home />);
 
     expect(await screen.findByRole("alert")).toHaveTextContent(/^Could not load stops\. Please reload the page\.$/);
+    expect(screen.getByRole("status")).toBeEmptyDOMElement();
     expect(consoleErrorSpy).toHaveBeenCalledWith(FETCH_ERROR);
 
     await userEvent.click(getButton("sunday"));

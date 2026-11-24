@@ -18,3 +18,6 @@ export const AREA_FRACTION_DIGITS = 1;
 
 // Reserves the summary's three short lines (stops, area, share) in every state, so nothing below the card moves when the stops load.
 export const RESULTS_MIN_HEIGHT_CLASS = "min-h-[3lh]";
+// Wait until the results have stopped changing (slider drag, held arrow keys, the deferred coverage) before announcing,
+// so a screen reader hears only the settled result.
+export const RESULTS_ANNOUNCEMENT_DELAY_MS = 750;

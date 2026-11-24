@@ -131,6 +131,12 @@ Automated checks (`web/e2e/accessibility.spec.ts`, run in CI):
 - Every Tab stop shows a focus indicator with at least 3:1 contrast against its background, in the light and the dark
   theme. The dark theme is tested by adding the `dark` class; the app has no theme switch yet.
 
+Result changes are announced to screen readers through the page's one status element. After a change of day type,
+time of day, modes, minimum departures or walking radius, one sentence with the qualifying stops, the covered area and
+the share of Vienna is announced once the result has stopped changing for 750 ms, so a dragged slider or a held arrow
+key gives one announcement. The first results after loading are not announced; a loading error is announced separately
+as an alert. `web/e2e/resultsAnnouncement.spec.ts` checks this in English and German.
+
 On phones the map is shown first but comes last in the Tab order, after the data link. The map canvas is a region
 named by our own label ("Map of qualifying stops and covered area" / "Karte der qualifizierenden Haltestellen und der
 abgedeckten Fläche"), not by MapLibre's default; it has no text description of what the map shows yet.

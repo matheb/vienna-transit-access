@@ -62,10 +62,12 @@ The results card is rendered on the server with placeholder values, hidden with 
 - First step: keep the reserved height but render no result numbers in the server HTML, and add a test that the server HTML contains none.
 
 ### Announce result changes to screen readers
-The results card changes when a control changes, but nothing announces it.
-- Status: 🔴 not started
+When a control changes the results, screen readers hear the new numbers in one sentence.
+- Status: 🟢 done. The page's one status element (the loading line, visually hidden once the stops have loaded) announces the stops, covered area and share after the result has stopped changing for 750 ms (`RESULTS_ANNOUNCEMENT_DELAY_MS`); the first results after loading are not announced. Covered by `web/e2e/resultsAnnouncement.spec.ts` (both languages) and unit tests for `useSettledAnnouncement` and `getResultsAnnouncement`.
 - Why: screen-reader users cannot tell that the numbers changed.
-- First step: try a polite aria-live region around the summary and check that it does not announce on every slider step (debounce), with a unit test and a manual screen-reader pass.
+- Follow-ups (🔴 not started):
+  - A manual check with NVDA and VoiceOver in English and German: the tests check the text in the page, not what is spoken.
+  - A dedicated, more natural sentence once ICU messages exist (optional); today it is the three card lines joined with ". ".
 
 ### Map fallback when WebGL is unavailable
 MapLibre needs WebGL; without it the map cannot render.

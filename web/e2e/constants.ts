@@ -12,6 +12,8 @@ export interface PageTexts {
   loadingText: string;
   stopsSummaryPattern: RegExp;
   coveredAreaPattern: RegExp;
+  // The third line of the results card (share of Vienna).
+  viennaSharePattern: RegExp;
   // Words that only appear when results are shown; the server HTML must contain neither.
   stopsSummaryText: string;
   areaUnitText: string;
@@ -39,6 +41,7 @@ export const TEXT = {
     loadingText: "Loading stops…",
     stopsSummaryPattern: /^\d+ of \d+ stops qualify$/,
     coveredAreaPattern: /^Covered area:/,
+    viennaSharePattern: /^\d+% of Vienna, approx\.$/,
     stopsSummaryText: "stops qualify",
     areaUnitText: "km²",
     minDeparturesSliderName: /^Min\. departures\/hour:/,
@@ -60,6 +63,8 @@ export const TEXT = {
     loadingText: "Haltestellen werden geladen…",
     stopsSummaryPattern: /^\d+ von \d+ Haltestellen erfüllen die Kriterien$/,
     coveredAreaPattern: /^Abgedeckte Fläche:/,
+    // \s: the German share has a no-break space before "%".
+    viennaSharePattern: /^\d+\s% von Wien \(ca\.\)$/,
     stopsSummaryText: "Haltestellen erfüllen die Kriterien",
     areaUnitText: "km²",
     minDeparturesSliderName: /^Min\. Abfahrten\/Stunde:/,

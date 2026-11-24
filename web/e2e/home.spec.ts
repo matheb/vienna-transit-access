@@ -1,7 +1,7 @@
 import { ATTRIBUTION_URL, FONT_URL_PATTERN, LOCALE_PATHS, PAGE_LANGUAGES, TEXT } from "./constants";
 import { expect, test } from "./fixtures";
 import {
-  getAttributionLink, getCoveredArea, getLoadingStatus, getRadiusSlider, getStopsSummary, getToggle,
+  getAttributionLink, getCoveredArea, getLoadingStatus, getLoadingText, getRadiusSlider, getStopsSummary, getToggle,
 } from "./homePage";
 import { holdStopsRequest } from "./stubs";
 
@@ -26,7 +26,7 @@ for (const language of PAGE_LANGUAGES) {
 
       await test.step("shows the stop count once the stops have loaded", async () => {
         releaseStops();
-        await expect(getLoadingStatus(page)).toBeHidden();
+        await expect(getLoadingText(page, texts)).toBeHidden();
         await expect(stopsSummary).toBeVisible();
       });
 
@@ -68,7 +68,7 @@ for (const language of PAGE_LANGUAGES) {
       await expect(getLoadingStatus(page)).toHaveText(texts.loadingText);
       const attributionYWhileLoading = (await getAttributionLink(page).boundingBox())?.y;
       releaseStops();
-      await expect(getLoadingStatus(page)).toBeHidden();
+      await expect(getLoadingText(page, texts)).toBeHidden();
       await expect(getStopsSummary(page, texts)).toBeVisible();
       const attributionYLoaded = (await getAttributionLink(page).boundingBox())?.y;
       expect(attributionYWhileLoading, "attribution link y while loading").toBeDefined();
