@@ -4,7 +4,7 @@ import { StrictMode, type ComponentProps } from "react";
 import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import Home from "@/app/page";
+import Home from "@/app/[locale]/page";
 import type TransitMap from "@/components/TransitMap";
 import type { Stop } from "@/lib/geo/coverage";
 import { fetchStops } from "@/services/stopsService";
