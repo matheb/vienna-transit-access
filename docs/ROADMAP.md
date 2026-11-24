@@ -75,11 +75,11 @@ The "rail" mode comes from GTFS route type 2 or 1xx; the current `stops.geojson`
 
 ### npm audit findings
 `npm install` reported 10 moderate vulnerabilities on 2026-11-19 (during the Next.js 16.4.5 upgrade). All 10 come from one advisory, minimatch GHSA-g3hv-75wg-m249 (denial of service, fixed in minimatch 11.0.1; it needs an attacker-controlled glob pattern). Nothing affected ships to the browser or runs under `next start`.
-- Status: 🟡 triaged 2026-11-21
+- Status: 🟡 triaged 2026-11-21; chain A fixed 2026-11-24; chain B accepted (4 findings left)
 - Why: we need to know whether any affected package ships to the browser or only runs in development.
-- Chain A (6 findings: lint tooling via `eslint-config-next`, `typescript-eslint` 8.72.1): fix with the override `"typescript-eslint": "8.73.0"` from 2026-11-23 (7-day rule; published 2026-11-16), then review the lockfile diff and run lint, typecheck, test, build and test:e2e.
+- Chain A (6 findings: lint tooling via `eslint-config-next`, `typescript-eslint` 8.72.1): fixed on 2026-11-24 with the override `"typescript-eslint": "8.73.0"` in `web/package.json`, installed with `--ignore-scripts --before=2026-11-17`. The lockfile moved `typescript-eslint` and the ten `@typescript-eslint/*` packages to 8.73.0, minimatch under `typescript-estree` to 11.0.9, and, nested there too, brace-expansion to 5.0.13 and semver to 7.8.6. Lint, typecheck, test, build and test:e2e pass. minimatch 11 brings in a new package, `@isaacs/nonrecursive-glob-match` 1.1.0: same maintainer as minimatch, the source in its tarball matches the GitHub `v1.1.0` tag, no dependencies or install hooks, but no repository field in its package.json and no provenance attestation.
 - Chain B (4 findings: shadcn CLI → `ts-morph` → `minimatch`): accepted; no fix inside shadcn 4.x. Do not run `npm audit fix` (it suggests the downgrade `shadcn@1.0.0`). Recheck when shadcn uses `ts-morph` 28 or newer.
-- Next step: chain A on or after 2026-11-23, following "Dependencies" in `web/CONVENTIONS.md`.
+- Next step: recheck chain B when shadcn uses `ts-morph` 28 or newer.
 
 ### Next.js 16.4.6 patch bump
 16.4.5 contains the November 2026 security fixes; 16.4.6 (published 2026-11-09) is a later patch that the security post does not mention.
