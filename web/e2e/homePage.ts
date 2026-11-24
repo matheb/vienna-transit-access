@@ -22,6 +22,10 @@ export function getCoveredArea(page: Page, texts: PageTexts) {
   return page.getByText(texts.coveredAreaPattern);
 }
 
+export function getViennaShare(page: Page, texts: PageTexts) {
+  return page.getByText(texts.viennaSharePattern);
+}
+
 // Any option toggle by its visible label: mode ("bus"), day ("weekday") or time band ("am").
 export function getToggle(page: Page, name: string) {
   return page.getByRole("button", { name, exact: true });
