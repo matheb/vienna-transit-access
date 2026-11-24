@@ -20,6 +20,14 @@ export const UNAVAILABLE_MODES_HINT_PREFIX = "No stops in the timetable data:";
 export const STOPS_DATA_PATH = "/data/stops.geojson";
 export const MAP_REGION_NAME = "Map of qualifying stops and covered area";
 
+// Routes: / sends visitors to the English page; a language we do not offer has no page.
+export const ENGLISH_PATH = "/en";
+export const UNSUPPORTED_LOCALE_PATH = "/fr";
+export const TEMPORARY_REDIRECT_STATUS = 307;
+export const NOT_FOUND_STATUS = 404;
+// The live site; hreflang links are absolute URLs on it (metadataBase).
+export const SITE_URL = "https://vienna-transit-access.vercel.app";
+
 // axe rule tags: WCAG 2.0 and 2.1, levels A and AA.
 export const AXE_WCAG_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"];
 
