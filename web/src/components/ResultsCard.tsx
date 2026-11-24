@@ -1,7 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { RESULTS_MIN_HEIGHT_CLASS } from "@/constants/home";
+import { AREA_FRACTION_DIGITS, RESULTS_MIN_HEIGHT_CLASS, WHOLE_NUMBER_FRACTION_DIGITS } from "@/constants/home";
 import type { Coverage } from "@/lib/geo/coverage";
-import { messages } from "@/i18n/en";
+import { useIntlLocale, useMessages } from "@/i18n/MessagesProvider";
+import { getFormattedNumber } from "@/lib/format";
 import { StopsLoadStatus } from "@/services/stopsService";
 
 interface ResultsCardProps {
@@ -12,6 +13,8 @@ interface ResultsCardProps {
 }
 
 export default function ResultsCard({ loadStatus, qualifyingStopCount, totalStopCount, coverage }: ResultsCardProps) {
+  const messages = useMessages();
+  const intlLocale = useIntlLocale();
   return (
     <Card>
       <CardContent className="pt-6 text-sm">
@@ -19,13 +22,15 @@ export default function ResultsCard({ loadStatus, qualifyingStopCount, totalStop
           {loadStatus === StopsLoadStatus.ready && (
             <>
               <p>
-                <b>{qualifyingStopCount}</b> {messages.ResultsCard.stopsSummary.of} {totalStopCount} {messages.ResultsCard.stopsSummary.suffix}
+                <b>{getFormattedNumber(intlLocale, qualifyingStopCount, WHOLE_NUMBER_FRACTION_DIGITS)}</b> {messages.ResultsCard.stopsSummary.of}{" "}
+                {getFormattedNumber(intlLocale, totalStopCount, WHOLE_NUMBER_FRACTION_DIGITS)} {messages.ResultsCard.stopsSummary.suffix}
               </p>
               <p>
-                {messages.ResultsCard.coveredArea.label} <b>{coverage.areaKm2.toFixed(1)} {messages.ResultsCard.coveredArea.unit}</b>
+                {messages.ResultsCard.coveredArea.label}{" "}
+                <b>{getFormattedNumber(intlLocale, coverage.areaKm2, AREA_FRACTION_DIGITS)} {messages.ResultsCard.coveredArea.unit}</b>
               </p>
               <p>
-                <b>{(coverage.viennaShare * 100).toFixed(0)}</b>{messages.ResultsCard.viennaShare.suffix}
+                <b>{getFormattedNumber(intlLocale, coverage.viennaShare * 100, WHOLE_NUMBER_FRACTION_DIGITS)}</b>{messages.ResultsCard.viennaShare.suffix}
               </p>
             </>
           )}

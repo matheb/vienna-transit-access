@@ -6,7 +6,7 @@ import {
   DAY_TYPES, SELECTABLE_MODES, TIME_BANDS,
   type DayType, type FilterParams, type Mode, type TimeBand,
 } from "@/lib/geo/coverage";
-import { messages } from "@/i18n/en";
+import { useIntlLocale, useMessages } from "@/i18n/MessagesProvider";
 
 interface ControlsPanelProps {
   filterParams: FilterParams;
@@ -15,6 +15,8 @@ interface ControlsPanelProps {
 }
 
 export default function ControlsPanel({ filterParams, availableModes, onFilterParamChange }: ControlsPanelProps) {
+  const messages = useMessages();
+  const intlLocale = useIntlLocale();
   // A mode without stops is shown disabled and never pressed, even if the filter still contains it.
   const pressedModes = filterParams.modes.filter((mode) => availableModes.includes(mode));
   const unavailableModes = SELECTABLE_MODES.filter((mode) => !availableModes.includes(mode));
@@ -56,6 +58,7 @@ export default function ControlsPanel({ filterParams, availableModes, onFilterPa
           label={messages.ControlsPanel.minDeparturesSlider.label}
           value={filterParams.minDeparturesPerHour}
           range={MIN_DEPARTURES_SLIDER}
+          locale={intlLocale}
           onValueChange={handleMinDeparturesChange}
         />
         <LabeledSlider
@@ -64,6 +67,7 @@ export default function ControlsPanel({ filterParams, availableModes, onFilterPa
           unit={messages.ControlsPanel.radiusSlider.unit}
           range={RADIUS_SLIDER}
           valueFormat={RADIUS_VALUE_FORMAT}
+          locale={intlLocale}
           onValueChange={handleRadiusChange}
         />
       </CardContent>
