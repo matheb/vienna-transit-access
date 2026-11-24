@@ -1,11 +1,13 @@
 import AxeBuilder from "@axe-core/playwright";
-import { AXE_WCAG_TAGS, MIN_MAP_VIEWPORT_SHARE, MOBILE_VIEWPORT } from "./constants";
+import { AXE_WCAG_TAGS, MIN_MAP_VIEWPORT_SHARE, MOBILE_VIEWPORT, TEXT } from "./constants";
 import { expect, test } from "./fixtures";
 import { getAttributionLink, getLoadingStatus, getMapRegion, getStopsSummary } from "./homePage";
 import { holdStopsRequest } from "./stubs";
 
 // Phone size with touch. Only this file runs at this size, so the rest of the suite is not run twice.
 test.use({ viewport: MOBILE_VIEWPORT, hasTouch: true });
+
+const texts = TEXT.en;
 
 // Set in beforeEach while the stops request is held; checked by the layout test.
 let attributionYWhileLoading: number | undefined;
@@ -17,7 +19,7 @@ test.beforeEach(async ({ page }) => {
   attributionYWhileLoading = (await getAttributionLink(page).boundingBox())?.y;
   releaseStops();
   await expect(getLoadingStatus(page)).toBeHidden();
-  await expect(getStopsSummary(page)).toBeVisible();
+  await expect(getStopsSummary(page, texts)).toBeVisible();
 });
 
 test("the content below the results card does not move when the stops load", async ({ page }) => {
@@ -27,7 +29,7 @@ test("the content below the results card does not move when the stops load", asy
 });
 
 test(`the map gets at least ${MIN_MAP_VIEWPORT_SHARE * 100}% of the viewport height`, async ({ page }) => {
-  const box = await getMapRegion(page).boundingBox();
+  const box = await getMapRegion(page, texts).boundingBox();
   const top = Math.max(box?.y ?? 0, 0);
   const bottom = Math.min((box?.y ?? 0) + (box?.height ?? 0), MOBILE_VIEWPORT.height);
   const visibleHeight = Math.max(bottom - top, 0);

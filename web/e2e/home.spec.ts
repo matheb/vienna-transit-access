@@ -1,21 +1,23 @@
-import { ATTRIBUTION_URL, FONT_URL_PATTERN, LOADING_TEXT, MODE_TOGGLE_NAME, PAGE_TITLE } from "./constants";
+import { ATTRIBUTION_URL, FONT_URL_PATTERN, TEXT } from "./constants";
 import { expect, test } from "./fixtures";
 import {
   getAttributionLink, getCoveredArea, getLoadingStatus, getRadiusSlider, getStopsSummary, getToggle,
 } from "./homePage";
 import { holdStopsRequest } from "./stubs";
 
+const texts = TEXT.en;
+
 // CARTO stubbing, console error printing and the uncaught-page-error check come from the automatic fixture.
 test("home page loads stops and responds to the controls", async ({ page }) => {
   const releaseStops = await holdStopsRequest(page);
-  const stopsSummary = getStopsSummary(page);
-  const coveredArea = getCoveredArea(page);
+  const stopsSummary = getStopsSummary(page, texts);
+  const coveredArea = getCoveredArea(page, texts);
   let attributionYWhileLoading: number | undefined;
 
   await test.step("shows the title and the loading state", async () => {
     await page.goto("/");
-    await expect(page).toHaveTitle(PAGE_TITLE);
-    await expect(getLoadingStatus(page)).toHaveText(LOADING_TEXT);
+    await expect(page).toHaveTitle(texts.pageTitle);
+    await expect(getLoadingStatus(page)).toHaveText(texts.loadingText);
     attributionYWhileLoading = (await getAttributionLink(page).boundingBox())?.y;
   });
 
@@ -32,7 +34,7 @@ test("home page loads stops and responds to the controls", async ({ page }) => {
   });
 
   await test.step("a mode toggle changes the stop count", async () => {
-    const modeToggle = getToggle(page, MODE_TOGGLE_NAME);
+    const modeToggle = getToggle(page, texts.modeToggleNames.bus);
     const pressedBefore = (await modeToggle.getAttribute("aria-pressed")) ?? "";
     const summaryBefore = (await stopsSummary.textContent()) ?? "";
     await modeToggle.click();
@@ -41,7 +43,7 @@ test("home page loads stops and responds to the controls", async ({ page }) => {
   });
 
   await test.step("the walking radius slider changes the covered area", async () => {
-    const radiusSlider = getRadiusSlider(page);
+    const radiusSlider = getRadiusSlider(page, texts);
     const radiusBefore = await radiusSlider.inputValue();
     const coveredAreaBefore = (await coveredArea.textContent()) ?? "";
     await radiusSlider.press("ArrowRight");
@@ -60,11 +62,11 @@ test("with the fallback font, the content below the results card does not move w
   await page.route(FONT_URL_PATTERN, (route) => route.abort());
   const releaseStops = await holdStopsRequest(page);
   await page.goto("/");
-  await expect(getLoadingStatus(page)).toHaveText(LOADING_TEXT);
+  await expect(getLoadingStatus(page)).toHaveText(texts.loadingText);
   const attributionYWhileLoading = (await getAttributionLink(page).boundingBox())?.y;
   releaseStops();
   await expect(getLoadingStatus(page)).toBeHidden();
-  await expect(getStopsSummary(page)).toBeVisible();
+  await expect(getStopsSummary(page, texts)).toBeVisible();
   const attributionYLoaded = (await getAttributionLink(page).boundingBox())?.y;
   expect(attributionYWhileLoading, "attribution link y while loading").toBeDefined();
   expect(attributionYLoaded, `attribution link y: ${attributionYWhileLoading} while loading, ${attributionYLoaded} after load`)

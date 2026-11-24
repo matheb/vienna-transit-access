@@ -1,8 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import type { Locator, Page } from "@playwright/test";
 import {
-  AXE_WCAG_TAGS, DAY_TOGGLE_NAMES, MIN_FOCUS_INDICATOR_CONTRAST, MODE_TOGGLE_NAMES, RADIUS_VALUE_TEXT_PATTERN,
-  TIME_BAND_TOGGLE_NAMES, UNAVAILABLE_MODES_HINT_PREFIX,
+  AXE_WCAG_TAGS, MIN_FOCUS_INDICATOR_CONTRAST, TEXT, type PageTexts,
 } from "./constants";
 import { expect, test } from "./fixtures";
 import {
@@ -27,13 +26,22 @@ interface FocusIndicator {
   backgroundLayers: Rgba[];
 }
 
+const texts = TEXT.en;
+
+// The labels of the mode toggles, in toggle order, split by whether the data has stops for that mode.
+function getModeToggleNames(pageTexts: PageTexts, modesWithStops: Set<string>, withStops: boolean) {
+  return Object.entries(pageTexts.modeToggleNames)
+    .filter(([mode]) => modesWithStops.has(mode) === withStops)
+    .map(([, name]) => name);
+}
+
 // The toggle groups in Tab order; each group's Tab stop is its pressed toggle, which is the first one by default.
 // The mode group lists only the modes with stops in the data; a disabled toggle is skipped by Tab and the arrow keys.
 function getToggleGroups(modesWithStops: Set<string>) {
   return [
-    { label: "day", toggleNames: DAY_TOGGLE_NAMES },
-    { label: "time band", toggleNames: TIME_BAND_TOGGLE_NAMES },
-    { label: "mode", toggleNames: MODE_TOGGLE_NAMES.filter((name) => modesWithStops.has(name)) },
+    { label: "day", toggleNames: texts.dayToggleNames },
+    { label: "time band", toggleNames: texts.timeBandToggleNames },
+    { label: "mode", toggleNames: getModeToggleNames(texts, modesWithStops, true) },
   ];
 }
 type ToggleGroups = ReturnType<typeof getToggleGroups>;
@@ -48,8 +56,8 @@ async function openLoadedPage(page: Page) {
   await page.goto("/");
   releaseStops();
   await expect(getLoadingStatus(page)).toBeHidden();
-  await expect(getStopsSummary(page)).toBeVisible();
-  await expect(getCoveredArea(page)).toBeVisible();
+  await expect(getStopsSummary(page, texts)).toBeVisible();
+  await expect(getCoveredArea(page, texts)).toBeVisible();
 }
 
 // Presses Tab the given number of times, starting from wherever focus is (the top of a freshly loaded page).
@@ -169,8 +177,8 @@ function getGroupOf(page: Page, toggle: Locator) {
 function getTabStopLocators(page: Page, toggleGroups: ToggleGroups) {
   return [
     ...toggleGroups.map((group) => getToggle(page, group.toggleNames[0])),
-    getMinDeparturesSlider(page),
-    getRadiusSlider(page),
+    getMinDeparturesSlider(page, texts),
+    getRadiusSlider(page, texts),
     getAttributionLink(page),
   ];
 }
@@ -187,8 +195,8 @@ test("axe finds no WCAG 2.0/2.1 A or AA violations on the loaded page", async ({
 
 // MapLibre names its canvas with our map label; the section around it has no name, so there is no second region.
 test("exactly one region has the map's name, and it is the map canvas", async ({ page }) => {
-  await expect(getMapRegion(page)).toHaveCount(1);
-  await expect(getMapRegion(page)).toHaveJSProperty("tagName", "CANVAS");
+  await expect(getMapRegion(page, texts)).toHaveCount(1);
+  await expect(getMapRegion(page, texts)).toHaveJSProperty("tagName", "CANVAS");
 });
 
 test("Tab moves through the toggle groups, both sliders and the data link in order", async ({ page, request }) => {
@@ -252,8 +260,8 @@ test("arrow keys, Home and End move focus inside each toggle group without press
 });
 
 test("Space presses a day toggle and Enter presses a time-band toggle", async ({ page }) => {
-  const [firstDay, secondDay] = DAY_TOGGLE_NAMES;
-  const [firstBand, secondBand] = TIME_BAND_TOGGLE_NAMES;
+  const [firstDay, secondDay] = texts.dayToggleNames;
+  const [firstBand, secondBand] = texts.timeBandToggleNames;
 
   await page.keyboard.press("Tab");
   await page.keyboard.press("ArrowRight");
@@ -274,8 +282,8 @@ test("Space presses a day toggle and Enter presses a time-band toggle", async ({
 
 test("arrow keys change both sliders", async ({ page }) => {
   for (const [tabStop, slider] of [
-    [MIN_DEPARTURES_TAB_STOP, getMinDeparturesSlider(page)],
-    [RADIUS_TAB_STOP, getRadiusSlider(page)],
+    [MIN_DEPARTURES_TAB_STOP, getMinDeparturesSlider(page, texts)],
+    [RADIUS_TAB_STOP, getRadiusSlider(page, texts)],
   ] as const) {
     await openLoadedPage(page);
     await pressTab(page, tabStop);
@@ -298,13 +306,13 @@ test("each toggle group has an accessible name", async ({ page, request }) => {
 
 test("modes without stops in the data are disabled, not pressed, and named in a visible hint", async ({ page, request }) => {
   const modesWithStops = await getModesWithStops(request);
-  const unavailableNames = MODE_TOGGLE_NAMES.filter((name) => !modesWithStops.has(name));
-  const hint = page.getByText(UNAVAILABLE_MODES_HINT_PREFIX);
+  const unavailableNames = getModeToggleNames(texts, modesWithStops, false);
+  const hint = page.getByText(texts.unavailableModesHintPrefix);
   if (unavailableNames.length === 0) {
     await expect(hint).toHaveCount(0);
     return;
   }
-  const hintText = `${UNAVAILABLE_MODES_HINT_PREFIX} ${unavailableNames.join(", ")}`;
+  const hintText = `${texts.unavailableModesHintPrefix} ${unavailableNames.join(", ")}`;
   await expect(hint).toHaveText(hintText);
   for (const name of unavailableNames) {
     const toggle = getToggle(page, name);
@@ -315,10 +323,10 @@ test("modes without stops in the data are disabled, not pressed, and named in a 
 });
 
 test("a slider's accessible name does not contain its current value", async ({ page }) => {
-  for (const slider of [getMinDeparturesSlider(page), getRadiusSlider(page)]) {
+  for (const slider of [getMinDeparturesSlider(page, texts), getRadiusSlider(page, texts)]) {
     const value = await slider.inputValue();
     const valuePattern = new RegExp(`\\b${value}\\b`);
     await expect.soft(slider, `slider name must not contain its value ${value}`).not.toHaveAccessibleName(valuePattern);
   }
-  await expect(getRadiusSlider(page), "radius is spoken with its unit").toHaveAttribute("aria-valuetext", RADIUS_VALUE_TEXT_PATTERN);
+  await expect(getRadiusSlider(page, texts), "radius is spoken with its unit").toHaveAttribute("aria-valuetext", texts.radiusValueTextPattern);
 });

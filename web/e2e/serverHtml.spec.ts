@@ -1,7 +1,8 @@
-import { AREA_UNIT_TEXT, LOADING_TEXT, STOPS_SUMMARY_TEXT } from "./constants";
+import { TEXT } from "./constants";
 import { expect, test } from "./fixtures";
 
 const CONTEXT_CHARS = 60;
+const texts = TEXT.en;
 
 // Each place the text occurs, with some characters around it, so a failure shows where it is without printing the whole page.
 function findWithContext(html: string, text: string) {
@@ -17,7 +18,7 @@ test("server HTML shows the loading state and no result numbers", async ({ reque
   const response = await request.get("/");
   expect(response.ok()).toBe(true);
   const html = await response.text();
-  expect(findWithContext(html, LOADING_TEXT), "loading text in server HTML").toHaveLength(1);
-  expect(findWithContext(html, STOPS_SUMMARY_TEXT), "stops summary in server HTML").toEqual([]);
-  expect(findWithContext(html, AREA_UNIT_TEXT), "covered area in server HTML").toEqual([]);
+  expect(findWithContext(html, texts.loadingText), "loading text in server HTML").toHaveLength(1);
+  expect(findWithContext(html, texts.stopsSummaryText), "stops summary in server HTML").toEqual([]);
+  expect(findWithContext(html, texts.areaUnitText), "covered area in server HTML").toEqual([]);
 });

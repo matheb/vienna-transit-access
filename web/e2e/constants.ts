@@ -1,24 +1,51 @@
-// Expected texts are literals on purpose: an e2e test checks what the user sees, so a changed label must fail.
-// Never import them from src/.
-export const PAGE_TITLE = "Vienna transit accessibility";
-export const LOADING_TEXT = "Loading stops…";
-export const STOPS_SUMMARY_PATTERN = /^\d+ of \d+ stops qualify$/;
-export const COVERED_AREA_PATTERN = /^Covered area:/;
-// Words that only appear when results are shown; the server HTML must contain neither.
-export const STOPS_SUMMARY_TEXT = "stops qualify";
-export const AREA_UNIT_TEXT = "km²";
-export const MIN_DEPARTURES_SLIDER_NAME = /^Min\. departures\/hour:/;
-export const RADIUS_SLIDER_NAME = /^Walking radius:/;
-export const MODE_TOGGLE_NAME = "bus";
+// The modes the tests know, as in stops.geojson ("modes"); the toggles follow the data.
+type TestedMode = "tram" | "metro" | "rail" | "bus";
+
+// What one page language shows. Every language must have all of these.
+export interface PageTexts {
+  pageTitle: string;
+  loadingText: string;
+  stopsSummaryPattern: RegExp;
+  coveredAreaPattern: RegExp;
+  // Words that only appear when results are shown; the server HTML must contain neither.
+  stopsSummaryText: string;
+  areaUnitText: string;
+  minDeparturesSliderName: RegExp;
+  radiusSliderName: RegExp;
+  radiusValueTextPattern: RegExp;
+  dayToggleNames: string[];
+  timeBandToggleNames: string[];
+  // Toggle label per data mode, in the order the toggles appear.
+  modeToggleNames: Record<TestedMode, string>;
+  unavailableModesHintPrefix: string;
+  mapRegionName: string;
+}
+
+// Expected texts per page language. They are literals on purpose: an e2e test checks what the user sees, so a changed
+// label must fail. Never import them from src/.
+export const TEXT = {
+  en: {
+    pageTitle: "Vienna transit accessibility",
+    loadingText: "Loading stops…",
+    stopsSummaryPattern: /^\d+ of \d+ stops qualify$/,
+    coveredAreaPattern: /^Covered area:/,
+    stopsSummaryText: "stops qualify",
+    areaUnitText: "km²",
+    minDeparturesSliderName: /^Min\. departures\/hour:/,
+    radiusSliderName: /^Walking radius:/,
+    radiusValueTextPattern: /^\d+ m$/,
+    dayToggleNames: ["weekday", "saturday", "sunday"],
+    timeBandToggleNames: ["am", "midday", "pm", "evening"],
+    modeToggleNames: { tram: "tram", metro: "metro", rail: "rail", bus: "bus" },
+    unavailableModesHintPrefix: "No stops in the timetable data:",
+    mapRegionName: "Map of qualifying stops and covered area",
+  },
+} satisfies Record<string, PageTexts>;
+
+// The same in every language.
 export const ATTRIBUTION_LINK_NAME = "data.wien.gv.at";
 export const ATTRIBUTION_URL = "https://data.wien.gv.at";
-export const RADIUS_VALUE_TEXT_PATTERN = /^\d+ m$/;
-export const DAY_TOGGLE_NAMES = ["weekday", "saturday", "sunday"];
-export const TIME_BAND_TOGGLE_NAMES = ["am", "midday", "pm", "evening"];
-export const MODE_TOGGLE_NAMES = ["tram", "metro", "rail", "bus"];
-export const UNAVAILABLE_MODES_HINT_PREFIX = "No stops in the timetable data:";
 export const STOPS_DATA_PATH = "/data/stops.geojson";
-export const MAP_REGION_NAME = "Map of qualifying stops and covered area";
 
 // Routes: / sends visitors to the English page; a language we do not offer has no page.
 export const ENGLISH_PATH = "/en";
