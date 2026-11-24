@@ -36,3 +36,14 @@ export function getAttributionLink(page: Page) {
 export function getMapRegion(page: Page, texts: PageTexts) {
   return page.getByRole("region", { name: texts.mapRegionName });
 }
+
+// The language switch: the link to the other language inside the navigation named for it.
+export function getOtherLanguageLink(page: Page, texts: PageTexts) {
+  return page.getByRole("navigation", { name: texts.languageNavName })
+    .getByRole("link", { name: texts.otherLanguageLinkName, exact: true });
+}
+
+// The side panel (<aside>) with the title, the language switch, the controls, the results and the data credit.
+export function getControlsPanel(page: Page) {
+  return page.getByRole("complementary");
+}
