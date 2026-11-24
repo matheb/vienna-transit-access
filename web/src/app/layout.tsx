@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { messages } from "@/i18n/en";
+import { DEFAULT_INTL_LOCALE } from "@/i18n/locales";
+import { MessagesProvider } from "@/i18n/MessagesProvider";
 import { geistMono, geistSans } from "./fonts";
 import "./globals.css";
 
@@ -13,7 +15,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={HTML_CLASS_NAME}>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <MessagesProvider messages={messages} intlLocale={DEFAULT_INTL_LOCALE}>{children}</MessagesProvider>
+      </body>
     </html>
   );
 }

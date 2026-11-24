@@ -6,7 +6,7 @@ import {
   DAY_TYPES, SELECTABLE_MODES, TIME_BANDS,
   type DayType, type FilterParams, type Mode, type TimeBand,
 } from "@/lib/geo/coverage";
-import { messages } from "@/i18n/en";
+import { useMessages } from "@/i18n/MessagesProvider";
 
 interface ControlsPanelProps {
   filterParams: FilterParams;
@@ -15,6 +15,7 @@ interface ControlsPanelProps {
 }
 
 export default function ControlsPanel({ filterParams, availableModes, onFilterParamChange }: ControlsPanelProps) {
+  const messages = useMessages();
   // A mode without stops is shown disabled and never pressed, even if the filter still contains it.
   const pressedModes = filterParams.modes.filter((mode) => availableModes.includes(mode));
   const unavailableModes = SELECTABLE_MODES.filter((mode) => !availableModes.includes(mode));

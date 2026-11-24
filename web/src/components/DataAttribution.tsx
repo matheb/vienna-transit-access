@@ -1,7 +1,8 @@
 import { DATA_SOURCE_URL } from "@/constants/attribution";
-import { messages } from "@/i18n/en";
+import { useMessages } from "@/i18n/MessagesProvider";
 
 export default function DataAttribution() {
+  const messages = useMessages();
   return (
     <footer className="text-xs text-muted-foreground">
       {messages.DataAttribution.prefix}{" "}

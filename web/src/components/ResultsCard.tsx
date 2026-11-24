@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { RESULTS_MIN_HEIGHT_CLASS } from "@/constants/home";
 import type { Coverage } from "@/lib/geo/coverage";
-import { messages } from "@/i18n/en";
+import { useMessages } from "@/i18n/MessagesProvider";
 import { StopsLoadStatus } from "@/services/stopsService";
 
 interface ResultsCardProps {
@@ -12,6 +12,7 @@ interface ResultsCardProps {
 }
 
 export default function ResultsCard({ loadStatus, qualifyingStopCount, totalStopCount, coverage }: ResultsCardProps) {
+  const messages = useMessages();
   return (
     <Card>
       <CardContent className="pt-6 text-sm">

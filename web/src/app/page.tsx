@@ -6,13 +6,14 @@ import DataAttribution from "@/components/DataAttribution";
 import ResultsCard from "@/components/ResultsCard";
 import { DEFAULT_FILTER_PARAMS } from "@/constants/home";
 import { SELECTABLE_MODES, filterStops, getAvailableModes, getCoverage, type FilterParams, type Stop } from "@/lib/geo/coverage";
-import { messages } from "@/i18n/en";
+import { useMessages } from "@/i18n/MessagesProvider";
 import { startStopsLoad } from "@/services/stopsLoader";
 import { StopsLoadStatus } from "@/services/stopsService";
 
 const TransitMap = dynamic(() => import("@/components/TransitMap"), { ssr: false });
 
 export default function HomePage() {
+  const messages = useMessages();
   const [allStops, setAllStops] = useState<Stop[]>([]);
   const [loadStatus, setLoadStatus] = useState<StopsLoadStatus>(StopsLoadStatus.loading);
   const [filterParams, setFilterParams] = useState<FilterParams>(DEFAULT_FILTER_PARAMS);
