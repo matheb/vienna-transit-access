@@ -22,6 +22,7 @@ Rules for agents and humans changing code in `web/`. Some target locations (e.g.
 - Data fetching lives in `src/services/` (e.g. `stopsService.ts`), not in components.
 - All user-facing text lives in the dictionaries `src/i18n/<locale>.ts` (see Internationalization below).
 - Pure geo logic lives in `src/lib/geo/` and is unit-tested; UI lives in `src/components/`.
+- Custom hooks live in `src/hooks/` (e.g. `useSettledAnnouncement.ts`). Their effects follow the rule under React & TypeScript: the effect makes one call to a helper outside the component, and the helper returns the cleanup.
 - Constants such as fonts and class strings go outside components, so component files stay small (fonts in `src/app/fonts.ts`, other constants in `src/constants/<area>.ts`, e.g. `src/constants/home.ts`).
 - Types that other files can reuse go outside components, next to the module that owns the concept (`StopsLoadStatus` in `stopsService.ts`). Reuse an existing type before adding a new type or constant for the same values.
 - Extract repeated Tailwind class strings or JSX blocks into small components in `src/components/`.
@@ -82,6 +83,7 @@ the language-switch tests.
 - Query by role and accessible label; use `getByText` only for plain text with no role. Never query by CSS class; no snapshot tests.
 - Find sliders with `getByLabelText`: Base UI keeps the thumb `visibility: hidden` in jsdom (no layout), which hides it from `getByRole`.
 - Check that a test for a guard or edge case fails when that code is removed. A successful `setState` after unmount is invisible at page level, so test it on the helper directly.
+- Testing Library's async helpers (`userEvent`, `waitFor`) hang when Vitest's fake timers are on. Tests that click use real timers; exact timing is tested in a hook test with `renderHook` and fake timers (e.g. `useSettledAnnouncement.test.ts`).
 - Do not test generated files in `src/components/ui/`.
 
 ### End-to-end tests (Playwright)
