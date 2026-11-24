@@ -39,6 +39,10 @@ function queryShareFigure() {
   return screen.queryByText(/of Vienna/);
 }
 
+function queryLoadingText() {
+  return screen.queryByText(/^Loading stops…$/);
+}
+
 describe("when ready", () => {
   it("shows the stop count, the area to one decimal, the whole-number share and approx.", () => {
     renderResultsCard(StopsLoadStatus.ready);
@@ -50,9 +54,9 @@ describe("when ready", () => {
     expect(getShareSummary()).toHaveTextContent(/^3% of Vienna, approx\.$/);
   });
 
-  it("shows no status or alert", () => {
+  it("shows no loading text or alert", () => {
     renderResultsCard(StopsLoadStatus.ready);
-    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+    expect(queryLoadingText()).not.toBeInTheDocument();
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 
@@ -91,6 +95,6 @@ describe("after a failure", () => {
     expect(queryStopsSummary()).not.toBeInTheDocument();
     expect(queryAreaFigure()).not.toBeInTheDocument();
     expect(queryShareFigure()).not.toBeInTheDocument();
-    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+    expect(queryLoadingText()).not.toBeInTheDocument();
   });
 });

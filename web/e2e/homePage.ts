@@ -8,6 +8,12 @@ export function getLoadingStatus(page: Page) {
   return page.getByRole("status");
 }
 
+// The loading text by its words. Waiting for it to disappear works whether or not the element that held it stays in
+// the page (the status element will stay, to announce results), so this is how tests wait for the stops to load.
+export function getLoadingText(page: Page, texts: PageTexts) {
+  return page.getByText(texts.loadingText, { exact: true });
+}
+
 export function getStopsSummary(page: Page, texts: PageTexts) {
   return page.getByText(texts.stopsSummaryPattern);
 }

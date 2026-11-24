@@ -3,7 +3,7 @@ import {
   DESKTOP_VIEWPORT, LOCALE_PATHS, MOBILE_VIEWPORT, PAGE_LANGUAGES, SUBPIXEL_TOLERANCE_PX, TEXT, type PageLanguage,
 } from "./constants";
 import { expect, test } from "./fixtures";
-import { getControlsPanel, getLoadingStatus, getOtherLanguageLink, getStopsSummary } from "./homePage";
+import { getControlsPanel, getLoadingText, getOtherLanguageLink, getStopsSummary } from "./homePage";
 import { stubStopsWithOneMode } from "./stubs";
 
 // Layout guards in both page languages. German labels are longer, so the German runs are the real check. The English
@@ -17,7 +17,7 @@ const ONLY_MODE_WITH_STOPS = "bus";
 // Opens the page in the given language and waits until the stops are shown.
 async function openLoadedPage(page: Page, language: PageLanguage) {
   await page.goto(LOCALE_PATHS[language]);
-  await expect(getLoadingStatus(page)).toBeHidden();
+  await expect(getLoadingText(page, TEXT[language])).toBeHidden();
   await expect(getStopsSummary(page, TEXT[language])).toBeVisible();
 }
 

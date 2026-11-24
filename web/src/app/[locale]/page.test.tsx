@@ -62,6 +62,10 @@ function getStopsSummary() {
   return screen.getByText(/stops qualify/);
 }
 
+function queryLoadingText() {
+  return screen.queryByText(/^Loading stops…$/);
+}
+
 function getButton(name: string) {
   return screen.getByRole("button", { name });
 }
@@ -74,7 +78,7 @@ async function renderLoadedHome() {
   fetchStopsMock.mockResolvedValue(ALL_STOPS);
   render(<Home />);
   await waitForMapToRender();
-  await waitFor(() => expect(screen.queryByRole("status")).not.toBeInTheDocument());
+  await waitFor(() => expect(queryLoadingText()).not.toBeInTheDocument());
   await waitFor(() => expect(getMapStopIds()).toEqual(["tram-stop", "bus-stop"]));
 }
 
@@ -119,7 +123,7 @@ describe("after the stops load", () => {
   it("removes the loading text, shows the counts and gives the map the qualifying stops and an area", async () => {
     await renderLoadedHome();
 
-    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+    expect(queryLoadingText()).not.toBeInTheDocument();
     expect(getStopsSummary()).toBeVisible();
     expect(getStopsSummary()).toHaveTextContent("2 of 3 stops qualify");
     expect(getLatestMapProps().area).not.toBeNull();

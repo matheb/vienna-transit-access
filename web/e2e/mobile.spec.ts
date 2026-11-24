@@ -1,7 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { AXE_WCAG_TAGS, LOCALE_PATHS, MIN_MAP_VIEWPORT_SHARE, MOBILE_VIEWPORT, PAGE_LANGUAGES, TEXT } from "./constants";
 import { expect, test } from "./fixtures";
-import { getAttributionLink, getLoadingStatus, getMapRegion, getStopsSummary } from "./homePage";
+import { getAttributionLink, getLoadingStatus, getLoadingText, getMapRegion, getStopsSummary } from "./homePage";
 import { holdStopsRequest } from "./stubs";
 
 // Phone size with touch. Only this file runs at this size, so the rest of the suite is not run twice.
@@ -20,7 +20,7 @@ for (const language of PAGE_LANGUAGES) {
       await expect(getLoadingStatus(page)).toBeVisible();
       attributionYWhileLoading = (await getAttributionLink(page).boundingBox())?.y;
       releaseStops();
-      await expect(getLoadingStatus(page)).toBeHidden();
+      await expect(getLoadingText(page, texts)).toBeHidden();
       await expect(getStopsSummary(page, texts)).toBeVisible();
     });
 

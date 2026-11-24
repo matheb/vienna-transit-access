@@ -5,7 +5,7 @@ import {
 } from "./constants";
 import { expect, test } from "./fixtures";
 import {
-  getAttributionLink, getCoveredArea, getLoadingStatus, getMapRegion, getMinDeparturesSlider, getOtherLanguageLink,
+  getAttributionLink, getCoveredArea, getLoadingText, getMapRegion, getMinDeparturesSlider, getOtherLanguageLink,
   getRadiusSlider, getStopsSummary, getToggle,
 } from "./homePage";
 import { getModesWithStops } from "./stopsData";
@@ -57,7 +57,7 @@ async function openLoadedPage(page: Page, language: PageLanguage) {
   const releaseStops = await holdStopsRequest(page);
   await page.goto(LOCALE_PATHS[language]);
   releaseStops();
-  await expect(getLoadingStatus(page)).toBeHidden();
+  await expect(getLoadingText(page, texts)).toBeHidden();
   await expect(getStopsSummary(page, texts)).toBeVisible();
   await expect(getCoveredArea(page, texts)).toBeVisible();
 }
