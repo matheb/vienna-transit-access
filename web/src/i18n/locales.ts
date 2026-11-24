@@ -1,5 +1,5 @@
 // The page languages; each has a URL (/en) and a dictionary in messages.ts.
-export const LOCALES = ["en"] as const;
+export const LOCALES = ["en", "de"] as const;
 export type Locale = (typeof LOCALES)[number];
 // Where / redirects to.
 export const DEFAULT_LOCALE: Locale = "en";

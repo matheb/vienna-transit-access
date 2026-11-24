@@ -76,4 +76,8 @@ export const messages = {
     mapLabel: "Map of qualifying stops and covered area",
     toggleAttributionLabel: "Toggle attribution",
   },
+  LanguageSwitch: {
+    // Names the navigation around the link to the other language.
+    label: "Language",
+  },
 } as const;
